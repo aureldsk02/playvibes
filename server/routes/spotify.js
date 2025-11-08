@@ -42,9 +42,15 @@ async function getSpotifyToken() {
 // Get playlist details from Spotify
 router.get('/playlist/:id', async (req, res) => {
   try {
+    // Validate playlist ID format (alphanumeric)
+    const playlistId = req.params.id;
+    if (!/^[a-zA-Z0-9]+$/.test(playlistId)) {
+      return res.status(400).json({ message: 'Invalid playlist ID format' });
+    }
+
     const token = await getSpotifyToken();
     const response = await axios.get(
-      `https://api.spotify.com/v1/playlists/${req.params.id}`,
+      `https://api.spotify.com/v1/playlists/${playlistId}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -68,12 +74,18 @@ router.get('/search', async (req, res) => {
       return res.status(400).json({ message: 'Search query required' });
     }
 
+    // Validate and sanitize search query
+    const sanitizedQuery = String(q).trim();
+    if (sanitizedQuery.length > 200) {
+      return res.status(400).json({ message: 'Search query too long' });
+    }
+
     const token = await getSpotifyToken();
     const response = await axios.get(
       'https://api.spotify.com/v1/search',
       {
         params: {
-          q,
+          q: sanitizedQuery,
           type: 'playlist',
           limit: 20
         },
