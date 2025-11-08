@@ -1,0 +1,27 @@
+{
+  "name": "playvibes",
+  "version": "1.0.0",
+  "description": "A platform to share and discover Spotify playlists",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "client": "cd client && npm run dev",
+    "server": "nodemon server/index.js",
+    "install-client": "cd client && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "mongoose": "^8.19.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
