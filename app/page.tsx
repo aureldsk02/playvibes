@@ -1,11 +1,21 @@
 "use client";
 
-
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { AuthGuard } from "@/components/auth/auth-guard";
-import { signInWithSpotify } from "@/lib/auth-client";
+import { signInWithSpotify, useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  // Redirect to /browse if user is already logged in
+  useEffect(() => {
+    if (session?.user) {
+      router.push("/browse");
+    }
+  }, [session, router]);
   return (
     <div className="min-h-screen bg-background overflow-hidden selection:bg-primary/20">
       {/* Dynamic Background */}
