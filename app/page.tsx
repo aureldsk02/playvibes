@@ -7,77 +7,89 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5">
+    <div className="min-h-screen bg-background overflow-hidden selection:bg-primary/20">
+      {/* Dynamic Background */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+      </div>
+
       {/* Hero Section */}
-      <main className="container-responsive py-12 sm:py-16 lg:py-20">
-        <div className="text-center animate-fade-in">
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              Share Your Music,
+      <main className="container-responsive pt-20 pb-16 sm:pt-24 sm:pb-20 lg:pt-32 lg:pb-28">
+        <div className="text-center max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-sm font-medium text-primary mb-8 animate-fade-in backdrop-blur-sm">
+            <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></span>
+            Now in Beta
+          </div>
+
+          <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight mb-8 animate-slide-up">
+            <span className="block text-foreground mb-2">Share Your</span>
+            <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient-x bg-300%">
+              Vibe With The World
             </span>
-            <br />
-            <span className="text-foreground">Discover New Vibes</span>
           </h1>
 
-          <p className="mt-6 text-lg sm:text-xl leading-relaxed text-muted-foreground max-w-3xl mx-auto">
-            Connect your Spotify account and share your favorite playlists with the world.
-            Discover new music through community-curated collections and connect with fellow music lovers.
+          <p className="mt-6 text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            Connect your Spotify, curate your best playlists, and let the community discover your musical taste.
           </p>
 
-          <div className="mt-10 sm:mt-12">
+          <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <AuthGuard
               fallback={
-                <div className="space-y-6 animate-slide-up">
+                <div className="w-full sm:w-auto">
                   <SignInButton />
-                  <p className="text-sm text-muted-foreground">
-                    Sign in with Spotify to start sharing your playlists
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    No credit card required • Free forever
                   </p>
                 </div>
               }
             >
-              <div className="glass rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10 max-w-4xl mx-auto animate-scale-in">
-                <h2 className="text-2xl sm:text-3xl font-semibold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                  Welcome to PlayVibes!
-                </h2>
-                <p className="text-muted-foreground mb-8 text-base sm:text-lg">
-                  You&apos;re successfully authenticated. Start exploring the features below.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  <FeatureCard
-                    title="Share Playlists"
-                    description="Make your playlists public for others to discover"
-                    gradient="from-purple-500/10 to-purple-600/10"
-                    textColor="text-purple-700 dark:text-purple-300"
-                    delay="0s"
-                  />
-                  <FeatureCard
-                    title="Discover Music"
-                    description="Browse playlists by genre, mood, and activity"
-                    gradient="from-blue-500/10 to-blue-600/10"
-                    textColor="text-blue-700 dark:text-blue-300"
-                    delay="0.1s"
-                  />
-                  <FeatureCard
-                    title="Connect & Engage"
-                    description="Like, comment, and save your favorite playlists"
-                    gradient="from-green-500/10 to-green-600/10"
-                    textColor="text-green-700 dark:text-green-300"
-                    delay="0.2s"
-                  />
-                </div>
-
-                <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button asChild size="lg" className="animate-bounce-in">
-                    <a href="/browse">Start Browsing</a>
-                  </Button>
-                  <Button asChild variant="outline" size="lg" className="animate-bounce-in" style={{ animationDelay: '0.2s' }}>
-                    <a href="/manage">Manage Playlists</a>
-                  </Button>
-                </div>
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <Button asChild size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:scale-105">
+                  <a href="/browse">Start Browsing</a>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg rounded-full border-2 hover:bg-secondary/50 transition-all duration-300">
+                  <a href="/manage">Manage Playlists</a>
+                </Button>
               </div>
             </AuthGuard>
           </div>
+        </div>
+
+        {/* Feature Cards / How it works */}
+        <div className="mt-24 sm:mt-32 grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+          <FeatureCard
+            icon={
+              <svg className="w-8 h-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+            }
+            title="Connect Spotify"
+            description="Link your account securely. We only access your public playlists and basic profile info."
+            delay="0.3s"
+          />
+          <FeatureCard
+            icon={
+              <svg className="w-8 h-8 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            }
+            title="Share & Curate"
+            description="Select which playlists to feature on your profile. Add tags and descriptions to help others find them."
+            delay="0.4s"
+          />
+          <FeatureCard
+            icon={
+              <svg className="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9-9a9 9 0 00-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            }
+            title="Discover Community"
+            description="Explore what others are listening to. Find hidden gems and new genres from real people."
+            delay="0.5s"
+          />
         </div>
       </main>
     </div>
@@ -85,26 +97,29 @@ export default function Home() {
 }
 
 interface FeatureCardProps {
+  icon: React.ReactNode;
   title: string;
   description: string;
-  gradient: string;
-  textColor: string;
   delay: string;
 }
 
-function FeatureCard({ title, description, gradient, textColor, delay }: FeatureCardProps) {
+function FeatureCard({ icon, title, description, delay }: FeatureCardProps) {
   return (
     <div
-      className={`bg-gradient-to-br ${gradient} p-6 rounded-xl border border-border/50 hover:border-border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fade-in`}
+      className="group relative p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/5 animate-fade-in backdrop-blur-md"
       style={{ animationDelay: delay }}
     >
-      <h3 className={`font-semibold text-lg mb-2 ${textColor}`}>{title}</h3>
-      <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+      <div className="relative z-10">
+        <div className="mb-6 inline-flex p-4 rounded-2xl bg-background/50 ring-1 ring-white/10 shadow-sm group-hover:scale-110 transition-transform duration-500">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors duration-300">{title}</h3>
+        <p className="text-muted-foreground leading-relaxed">{description}</p>
+      </div>
     </div>
   );
 }
-
-
 
 function SignInButton() {
   const handleSignIn = async () => {
@@ -120,10 +135,11 @@ function SignInButton() {
   return (
     <Button
       onClick={handleSignIn}
-      className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
+      size="lg"
+      className="h-14 px-8 text-lg rounded-full bg-[#1DB954] hover:bg-[#1ed760] text-white shadow-lg hover:shadow-[#1DB954]/25 transition-all duration-300 hover:scale-105 w-full sm:w-auto"
     >
       <svg
-        className="w-4 h-4 mr-2"
+        className="w-6 h-6 mr-3"
         viewBox="0 0 24 24"
         fill="currentColor"
       >
