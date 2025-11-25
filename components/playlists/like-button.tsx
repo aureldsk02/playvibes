@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import { useOptimisticUpdate } from "@/hooks/use-optimistic-update";
+import { apiClient } from "@/lib/api-client";
 
 interface LikeButtonProps {
   playlistId: string;
@@ -22,24 +22,25 @@ export function LikeButton({
 }: LikeButtonProps) {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const previousStateRef = useRef({ isLiked: initialIsLiked, likesCount: initialLikesCount });
 
-  const handleLike = async () => {
-    if (isLoading) return;
+  const { execute: handleLike, isLoading } = useOptimisticUpdate<
+    void,
+    { isLiked: boolean; likesCount: number; message: string }
+  >({
+    mutationFn: async () => {
+      // Store previous state before mutation
+      previousStateRef.current = { isLiked, likesCount };
+      
+      // Perform optimistic update
+      const newIsLiked = !isLiked;
+      const newLikesCount = newIsLiked ? likesCount + 1 : likesCount - 1;
+      setIsLiked(newIsLiked);
+      setLikesCount(newLikesCount);
+      onLikeChange?.(newIsLiked, newLikesCount);
 
-    setIsLoading(true);
-    const previousState = { isLiked, likesCount };
-    
-    // Optimistic update
-    const newIsLiked = !isLiked;
-    const newLikesCount = newIsLiked ? likesCount + 1 : likesCount - 1;
-    setIsLiked(newIsLiked);
-    setLikesCount(newLikesCount);
-    onLikeChange?.(newIsLiked, newLikesCount);
-    
-    try {
-      const method = previousState.isLiked ? "DELETE" : "POST";
+      // Make API call
+      const method = previousStateRef.current.isLiked ? "DELETE" : "POST";
       const data = method === "DELETE" 
         ? await apiClient.delete<{
             isLiked: boolean;
@@ -52,32 +53,22 @@ export function LikeButton({
             message: string;
           }>(`/api/playlists/${playlistId}/like`);
       
+      return data;
+    },
+    onSuccess: (data) => {
       // Update with server response (in case of discrepancy)
       setIsLiked(data.isLiked);
       setLikesCount(data.likesCount);
       onLikeChange?.(data.isLiked, data.likesCount);
-
-      toast({
-        title: data.isLiked ? "Playlist liked!" : "Playlist unliked",
-        description: data.message,
-        variant: "success",
-        duration: 2000,
-      });
-    } catch (error) {
-      // Revert optimistic update
-      setIsLiked(previousState.isLiked);
-      setLikesCount(previousState.likesCount);
-      onLikeChange?.(previousState.isLiked, previousState.likesCount);
-
-      toast({
-        title: "Error",
-        description: getErrorMessage(error),
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    rollbackFn: () => {
+      // Revert optimistic update on error
+      setIsLiked(previousStateRef.current.isLiked);
+      setLikesCount(previousStateRef.current.likesCount);
+      onLikeChange?.(previousStateRef.current.isLiked, previousStateRef.current.likesCount);
+    },
+    successMessage: isLiked ? "Playlist unliked" : "Playlist liked!",
+  });
 
   return (
     <Button
@@ -86,13 +77,14 @@ export function LikeButton({
       onClick={handleLike}
       disabled={isLoading}
       className={cn(
-        "flex items-center gap-2 transition-colors",
+        "flex items-center gap-2 transition-colors min-h-[44px] px-3",
         isLiked && "text-red-500 hover:text-red-600"
       )}
+      aria-label={isLiked ? `Unlike playlist (${likesCount} likes)` : `Like playlist (${likesCount} likes)`}
     >
       <Heart
         className={cn(
-          "h-4 w-4 transition-all",
+          "h-5 w-5 transition-all",
           isLiked && "fill-current"
         )}
       />

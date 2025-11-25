@@ -142,9 +142,27 @@
     @apply bg-muted-foreground/50;
   }
   
-  /* Focus styles */
-  .focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  /* Enhanced Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+  
+  /* High contrast focus for interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="button"]:focus-visible,
+  [role="link"]:focus-visible,
+  [role="slider"]:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+  
+  /* Skip to main content link for screen readers */
+  .skip-to-main {
+    @apply absolute -top-full left-0 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded-br-lg focus:top-0 transition-all;
   }
 }
 
@@ -156,6 +174,10 @@
   
   .animate-slide-up {
     animation: slideUp 0.3s ease-out;
+  }
+  
+  .animate-slide-down {
+    animation: slideDown 0.3s ease-out;
   }
   
   .animate-scale-in {
@@ -175,6 +197,17 @@
     from { 
       opacity: 0;
       transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideDown {
+    from { 
+      opacity: 0;
+      transform: translateY(-20px);
     }
     to { 
       opacity: 1;
@@ -281,6 +314,49 @@
   
   .container-narrow {
     @apply w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Touch-friendly utilities */
+  .touch-target {
+    @apply min-w-[44px] min-h-[44px];
+  }
+  
+  .touch-target-lg {
+    @apply min-w-[48px] min-h-[48px];
+  }
+  
+  /* Mobile-optimized text sizes */
+  .text-mobile-sm {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-mobile-base {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-mobile-lg {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-mobile-xl {
+    @apply text-lg sm:text-xl;
+  }
+  
+  /* Safe area padding for mobile devices with notches */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-inset-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-area-inset-right {
+    padding-right: env(safe-area-inset-right);
   }
   
   /* Glass effect */

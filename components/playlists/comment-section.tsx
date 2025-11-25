@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trash2, MessageCircle, AlertCircle } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { MessageCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { apiClient, getErrorMessage } from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CommentForm } from "./comment-form";
+import { CommentItem } from "./comment-item";
+import { useOptimisticUpdate } from "@/hooks/use-optimistic-update";
 
 interface Comment {
   id: string;
@@ -37,12 +37,12 @@ export function CommentSection({
   className,
 }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const optimisticCommentRef = useRef<Comment | null>(null);
 
   // Fetch comments
   const fetchComments = async () => {
@@ -72,44 +72,86 @@ export function CommentSection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showComments, playlistId]);
 
-  // Submit new comment
-  const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Submit new comment with optimistic update
+  const { execute: submitComment } = useOptimisticUpdate<void, { data: Comment }>({
+    mutationFn: async () => {
+      // Create optimistic comment
+      const optimisticComment: Comment = {
+        id: `temp-${Date.now()}`,
+        playlistId,
+        userId: currentUserId || "",
+        content: optimisticCommentRef.current?.content || "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        user: {
+          id: currentUserId || "",
+          name: optimisticCommentRef.current?.user.name || null,
+          image: optimisticCommentRef.current?.user.image || null,
+        },
+      };
 
-    if (!newComment.trim() || isSubmitting) return;
+      // Add optimistic comment to the list
+      setComments((prev) => [optimisticComment, ...prev]);
+
+      // Make API call
+      const data = await apiClient.post<{ data: Comment }>(
+        `/api/playlists/${playlistId}/comments`,
+        {
+          content: optimisticCommentRef.current?.content,
+        }
+      );
+
+      return data;
+    },
+    onSuccess: (data) => {
+      // Replace optimistic comment with real one
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id.startsWith("temp-") ? data.data : comment
+        )
+      );
+    },
+    rollbackFn: () => {
+      // Remove optimistic comment on error
+      setComments((prev) => prev.filter((comment) => !comment.id.startsWith("temp-")));
+    },
+    successMessage: "Comment posted successfully!",
+  });
+
+  const handleSubmitComment = async (content: string) => {
+    if (isSubmitting) return;
 
     setIsSubmitting(true);
+    
+    // Store comment data for optimistic update
+    optimisticCommentRef.current = {
+      id: "",
+      playlistId,
+      userId: currentUserId || "",
+      content,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      user: {
+        id: currentUserId || "",
+        name: null, // Will be filled from session
+        image: null, // Will be filled from session
+      },
+    };
 
-    try {
-      const data = await apiClient.post<{ data: Comment }>(`/api/playlists/${playlistId}/comments`, {
-        content: newComment.trim(),
-      });
-
-      setComments((prev) => [data.data, ...prev]);
-      setNewComment("");
-
-      toast({
-        title: "Comment added!",
-        description: "Your comment has been posted successfully.",
-        variant: "success",
-        duration: 2000,
-      });
-    } catch (error) {
-      toast({
-        title: "Error adding comment",
-        description: getErrorMessage(error),
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await submitComment();
+    setIsSubmitting(false);
   };
 
-  // Delete comment
+  // Delete comment with optimistic update
   const handleDeleteComment = async (commentId: string) => {
+    const commentToDelete = comments.find((c) => c.id === commentId);
+    if (!commentToDelete) return;
+
+    // Optimistically remove comment
+    setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+
     try {
       await apiClient.delete(`/api/playlists/${playlistId}/comments/${commentId}`);
-      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
 
       toast({
         title: "Comment deleted",
@@ -118,22 +160,15 @@ export function CommentSection({
         duration: 2000,
       });
     } catch (error) {
+      // Rollback: add comment back
+      setComments((prev) => [commentToDelete, ...prev]);
+
       toast({
         title: "Error deleting comment",
         description: getErrorMessage(error),
         variant: "destructive",
       });
     }
-  };
-
-  const getInitials = (name: string | null) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   return (
@@ -155,27 +190,11 @@ export function CommentSection({
         <div className="space-y-4">
           {/* Add comment form */}
           {currentUserId && (
-            <form onSubmit={handleSubmitComment} className="space-y-3">
-              <Textarea
-                placeholder="Add a comment..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[80px] resize-none"
-                maxLength={1000}
-              />
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground">
-                  {newComment.length}/1000
-                </span>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={!newComment.trim() || isSubmitting}
-                >
-                  {isSubmitting ? "Posting..." : "Post Comment"}
-                </Button>
-              </div>
-            </form>
+            <CommentForm
+              onSubmit={handleSubmitComment}
+              isSubmitting={isSubmitting}
+              maxLength={500}
+            />
           )}
 
           {/* Comments list */}
@@ -210,48 +229,23 @@ export function CommentSection({
                 </Button>
               </div>
             ) : comments.length === 0 ? (
-              <div className="text-center text-muted-foreground py-4">
-                No comments yet. Be the first to comment!
+              <div className="text-center py-8">
+                <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+                <p className="text-sm text-muted-foreground font-medium mb-1">
+                  No comments yet
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Be the first to share your thoughts!
+                </p>
               </div>
             ) : (
               comments.map((comment) => (
-                <div key={comment.id} className="flex gap-3 group">
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarImage src={comment.user.image || undefined} />
-                    <AvatarFallback className="text-xs">
-                      {getInitials(comment.user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">
-                        {comment.user.name || "Anonymous"}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(comment.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                    </div>
-
-                    <p className="text-sm text-foreground whitespace-pre-wrap">
-                      {comment.content}
-                    </p>
-                  </div>
-
-                  {/* Delete button for comment owner */}
-                  {currentUserId === comment.userId && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteComment(comment.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                  onDelete={handleDeleteComment}
+                  canDelete={currentUserId === comment.userId}
+                />
               ))
             )}
           </div>

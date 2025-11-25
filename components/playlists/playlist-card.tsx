@@ -20,6 +20,7 @@ interface PlaylistCardProps {
   onSave?: (playlistId: string) => void;
   style?: React.CSSProperties;
   onPlay?: (playlistId: string) => void;
+  onClick?: (playlistId: string) => void;
   className?: string;
 }
 
@@ -31,6 +32,7 @@ export function PlaylistCard({
   onLike,
   onSave,
   onPlay,
+  onClick,
   className = "",
   style,
 }: PlaylistCardProps) {
@@ -63,11 +65,20 @@ export function PlaylistCard({
     }
   };
 
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick(playlist.id);
+    }
+  };
+
   return (
     <AnimatedCard
       hover="lift"
-      className={cn("overflow-hidden animate-fade-in", className)}
+      className={cn("overflow-hidden animate-fade-in cursor-pointer", className)}
       style={style}
+      onClick={handleCardClick}
+      role="article"
+      aria-label={`Playlist: ${playlist.name} by ${playlist.user.name || "Unknown"}`}
     >
       {/* Playlist Image */}
       <div className="relative aspect-square group overflow-hidden">
@@ -89,15 +100,19 @@ export function PlaylistCard({
           }
         />
 
-        {/* Play button overlay */}
+        {/* Play button overlay - Minimum 44x44px touch target */}
         {onPlay && (
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
             <Button
               size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-90 group-hover:scale-100 bg-primary hover:bg-primary/90 shadow-lg"
-              onClick={handlePlay}
+              className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-90 group-hover:scale-100 bg-primary hover:bg-primary/90 shadow-lg min-w-[44px] min-h-[44px] w-12 h-12"
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePlay();
+              }}
+              aria-label="Play playlist"
             >
-              <Play className="w-5 h-5" />
+              <Play className="w-6 h-6" aria-hidden="true" />
             </Button>
           </div>
         )}
@@ -106,7 +121,7 @@ export function PlaylistCard({
       {/* Playlist Info */}
       <div className="p-4 space-y-3">
         <div>
-          <h3 className="font-semibold text-lg line-clamp-1 mb-1 group-hover:text-primary transition-colors">
+          <h3 className="font-semibold text-lg line-clamp-1 mb-1 group-hover:text-primary transition-colors" id={`playlist-title-${playlist.id}`}>
             {playlist.name}
           </h3>
           {playlist.description && (
@@ -155,10 +170,10 @@ export function PlaylistCard({
             </div>
           )}
 
-        {/* Actions */}
+        {/* Actions - Minimum 44x44px touch targets */}
         {showActions && (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between min-h-[44px]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center space-x-1">
               <LikeButton
                 playlistId={localPlaylist.id}
                 initialLikesCount={localPlaylist.likesCount}
@@ -166,8 +181,8 @@ export function PlaylistCard({
                 onLikeChange={handleLikeChange}
               />
 
-              <div className="flex items-center space-x-1">
-                <MessageCircle className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center space-x-1 px-2" aria-label={`${localPlaylist.commentsCount} comments`}>
+                <MessageCircle className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                 <span className="text-sm text-muted-foreground">{localPlaylist.commentsCount}</span>
               </div>
             </div>

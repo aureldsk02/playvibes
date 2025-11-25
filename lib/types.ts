@@ -108,6 +108,22 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface UserProfileResponse {
+  user: {
+    id: string;
+    name: string | null;
+    image: string | null;
+    email?: string | null;
+    spotifyId: string | null;
+  };
+  stats: {
+    sharedPlaylistsCount: number;
+    totalLikesReceived: number;
+    totalSavesReceived: number;
+  };
+  isOwnProfile: boolean;
+}
+
 // Search and filter types
 export interface PlaylistFilters {
   search?: string;
@@ -115,6 +131,7 @@ export interface PlaylistFilters {
   moods?: string[];
   activities?: string[];
   userId?: string;
+  sortBy?: "most_liked" | "most_saved" | "newest" | "oldest";
 }
 
 export interface PlaylistSearchParams {
@@ -221,6 +238,15 @@ export interface PlaybackState {
   deviceId: string | null;
   isReady: boolean;
   hasSpotifyPremium: boolean;
+  disallows?: {
+    pausing: boolean;
+    peeking_next: boolean;
+    peeking_prev: boolean;
+    resuming: boolean;
+    seeking: boolean;
+    skipping_next: boolean;
+    skipping_prev: boolean;
+  };
 }
 
 // Component prop types

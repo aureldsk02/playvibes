@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import { useOptimisticUpdate } from "@/hooks/use-optimistic-update";
+import { apiClient } from "@/lib/api-client";
 
 interface SaveButtonProps {
   playlistId: string;
@@ -21,22 +21,23 @@ export function SaveButton({
   showLabel = false,
 }: SaveButtonProps) {
   const [isSaved, setIsSaved] = useState(initialIsSaved);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const previousStateRef = useRef(initialIsSaved);
 
-  const handleSave = async () => {
-    if (isLoading) return;
+  const { execute: handleSave, isLoading } = useOptimisticUpdate<
+    void,
+    { isSaved: boolean; message: string }
+  >({
+    mutationFn: async () => {
+      // Store previous state before mutation
+      previousStateRef.current = isSaved;
+      
+      // Perform optimistic update
+      const newIsSaved = !isSaved;
+      setIsSaved(newIsSaved);
+      onSaveChange?.(newIsSaved);
 
-    setIsLoading(true);
-    const previousState = isSaved;
-    
-    // Optimistic update
-    const newIsSaved = !isSaved;
-    setIsSaved(newIsSaved);
-    onSaveChange?.(newIsSaved);
-    
-    try {
-      const method = previousState ? "DELETE" : "POST";
+      // Make API call
+      const method = previousStateRef.current ? "DELETE" : "POST";
       const data = method === "DELETE" 
         ? await apiClient.delete<{
             isSaved: boolean;
@@ -47,30 +48,20 @@ export function SaveButton({
             message: string;
           }>(`/api/playlists/${playlistId}/save`);
       
+      return data;
+    },
+    onSuccess: (data) => {
       // Update with server response (in case of discrepancy)
       setIsSaved(data.isSaved);
       onSaveChange?.(data.isSaved);
-
-      toast({
-        title: data.isSaved ? "Playlist saved!" : "Playlist removed from saved",
-        description: data.message,
-        variant: "success",
-        duration: 2000,
-      });
-    } catch (error) {
-      // Revert optimistic update
-      setIsSaved(previousState);
-      onSaveChange?.(previousState);
-
-      toast({
-        title: "Error",
-        description: getErrorMessage(error),
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    rollbackFn: () => {
+      // Revert optimistic update on error
+      setIsSaved(previousStateRef.current);
+      onSaveChange?.(previousStateRef.current);
+    },
+    successMessage: isSaved ? "Playlist removed from saved" : "Playlist saved!",
+  });
 
   return (
     <Button
@@ -79,13 +70,14 @@ export function SaveButton({
       onClick={handleSave}
       disabled={isLoading}
       className={cn(
-        "flex items-center gap-2 transition-colors",
+        "flex items-center gap-2 transition-colors min-h-[44px] px-3",
         isSaved && "text-blue-500 hover:text-blue-600"
       )}
+      aria-label={isSaved ? "Remove from saved playlists" : "Save playlist"}
     >
       <Bookmark
         className={cn(
-          "h-4 w-4 transition-all",
+          "h-5 w-5 transition-all",
           isSaved && "fill-current"
         )}
       />

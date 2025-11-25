@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sharedPlaylists, users, playlistLikes, playlistComments, savedPlaylists } from "@/lib/db/schema";
-import { eq, desc, count, sql, ilike, and, or } from "drizzle-orm";
+import { eq, desc, asc, count, sql, ilike, and, or } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = (page - 1) * limit;
-    
+    const sortBy = searchParams.get("sortBy") || "newest";
+
     // Search and filter parameters
     const searchQuery = searchParams.get("q");
     const genresParam = searchParams.get("genres");
@@ -61,8 +62,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Determine order by clause based on sortBy parameter
+    let orderByClause;
+    if (sortBy === "most_liked") {
+      orderByClause = desc(sql<number>`COUNT(DISTINCT ${playlistLikes.playlistId})`);
+    } else if (sortBy === "most_saved") {
+      orderByClause = desc(sql<number>`COUNT(DISTINCT ${savedPlaylists.playlistId})`);
+    } else if (sortBy === "oldest") {
+      orderByClause = asc(sharedPlaylists.createdAt);
+    } else {
+      // Default: newest
+      orderByClause = desc(sharedPlaylists.createdAt);
+    }
+
     // Build the main query
-    const searchQuery_db = db
+    let queryBuilder = db
       .select({
         id: sharedPlaylists.id,
         spotifyPlaylistId: sharedPlaylists.spotifyPlaylistId,
@@ -82,13 +96,20 @@ export async function GET(request: NextRequest) {
           name: users.name,
           image: users.image,
         },
-        likesCount: sql<number>`COALESCE(${count(playlistLikes.playlistId)}, 0)`,
-        commentsCount: sql<number>`COALESCE(${count(playlistComments.id)}, 0)`,
+        likesCount: sql<number>`COUNT(DISTINCT ${playlistLikes.playlistId})`,
+        commentsCount: sql<number>`COUNT(DISTINCT ${playlistComments.id})`,
       })
       .from(sharedPlaylists)
       .leftJoin(users, eq(sharedPlaylists.userId, users.id))
       .leftJoin(playlistLikes, eq(sharedPlaylists.id, playlistLikes.playlistId))
-      .leftJoin(playlistComments, eq(sharedPlaylists.id, playlistComments.playlistId))
+      .leftJoin(playlistComments, eq(sharedPlaylists.id, playlistComments.playlistId));
+
+    // Add savedPlaylists join only if sorting by most_saved
+    if (sortBy === "most_saved") {
+      queryBuilder = queryBuilder.leftJoin(savedPlaylists, eq(sharedPlaylists.id, savedPlaylists.playlistId));
+    }
+
+    const searchQuery_db = queryBuilder
       .where(and(...whereConditions))
       .groupBy(
         sharedPlaylists.id,
@@ -108,7 +129,7 @@ export async function GET(request: NextRequest) {
         users.name,
         users.image
       )
-      .orderBy(desc(sharedPlaylists.createdAt))
+      .orderBy(orderByClause)
       .limit(limit)
       .offset(offset);
 
@@ -127,7 +148,7 @@ export async function GET(request: NextRequest) {
     let playlistsWithUserActions = playlists;
     if (session?.user && playlists.length > 0) {
       const playlistIds = playlists.map(p => p.id);
-      
+
       // Get user's likes for these playlists
       const userLikes = await db
         .select({ playlistId: playlistLikes.playlistId })

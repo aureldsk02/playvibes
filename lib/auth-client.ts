@@ -34,9 +34,9 @@ export const {
 } = authClient;
 
 // Helper function to sign in with Spotify
-export const signInWithSpotify = () => {
+export const signInWithSpotify = (redirectTo: string = "/browse") => {
   return signIn.social({
     provider: "spotify",
-    callbackURL: "/",
+    callbackURL: redirectTo,
   });
 };

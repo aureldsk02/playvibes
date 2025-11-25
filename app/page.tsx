@@ -124,7 +124,7 @@ function FeatureCard({ icon, title, description, delay }: FeatureCardProps) {
 function SignInButton() {
   const handleSignIn = async () => {
     try {
-      await signInWithSpotify();
+      await signInWithSpotify("/browse");
     } catch (error) {
       console.error("Error signing in:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";

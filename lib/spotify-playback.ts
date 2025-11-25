@@ -1,4 +1,5 @@
 import { PlaybackState } from './types';
+import { loadSpotifySDK } from './lazy-spotify-sdk';
 
 export class SpotifyPlaybackService {
   private player: SpotifyPlayer | null = null;
@@ -7,19 +8,16 @@ export class SpotifyPlaybackService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private listeners: Map<string, ((data?: any) => void)[]> = new Map();
 
-  constructor() {
-    this.initializeSDK();
-  }
-
-  private initializeSDK() {
-    if (typeof window === 'undefined') return;
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      this.emit('sdk-ready');
-    };
-  }
-
   async initializePlayer(accessToken: string, deviceName: string = 'PlayVibes Web Player'): Promise<boolean> {
+    // Lazy load the Spotify SDK
+    try {
+      await loadSpotifySDK();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load Spotify SDK';
+      this.emit('error', { type: 'initialization', message: errorMessage });
+      throw error;
+    }
+
     if (typeof window === 'undefined' || !window.Spotify) {
       const error = new Error('Spotify Web Playback SDK not loaded');
       this.emit('error', { type: 'initialization', message: error.message });
@@ -33,7 +31,7 @@ export class SpotifyPlaybackService {
 
     this.player = new window.Spotify.Player({
       name: deviceName,
-      getOAuthToken: (callback) => {
+      getOAuthToken: (callback: (token: string) => void) => {
         callback(accessToken);
       },
       volume: 0.5
@@ -43,7 +41,7 @@ export class SpotifyPlaybackService {
     this.setupPlayerListeners(hasSpotifyPremium);
 
     // Connect to the player
-    const success = await this.player.connect();
+    const success = await this.player!.connect();
     return success;
   }
 
@@ -95,7 +93,8 @@ export class SpotifyPlaybackService {
         volume: 0.5, // We'll get this separately
         deviceId: this.deviceId,
         isReady: true,
-        hasSpotifyPremium
+        hasSpotifyPremium,
+        disallows: state.disallows
       };
 
       this.emit('state-changed', playbackState);

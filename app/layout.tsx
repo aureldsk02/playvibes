@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { GlobalErrorInitializer } from "@/components/global-error-initializer";
+import { SWRProvider } from "@/components/providers/swr-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,23 +32,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <script src="https://sdk.scdn.co/spotify-player.js" async></script>
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Skip to main content link for keyboard navigation */}
+        <a href="#main-content" className="skip-to-main">
+          Skip to main content
+        </a>
         <GlobalErrorInitializer />
         <ErrorBoundary>
-          <ToastProvider>
-            <AuthProvider>
-              <PlaybackProvider>
-                {children}
-                <GlobalPlayer />
-              </PlaybackProvider>
-            </AuthProvider>
-            <Toaster />
-          </ToastProvider>
+          <SWRProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <PlaybackProvider>
+                  {children}
+                  <GlobalPlayer />
+                </PlaybackProvider>
+              </AuthProvider>
+              <Toaster />
+            </ToastProvider>
+          </SWRProvider>
         </ErrorBoundary>
       </body>
     </html>

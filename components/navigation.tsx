@@ -15,6 +15,7 @@ const navigation = [
   { name: "Browse", href: "/browse" },
   { name: "Manage", href: "/manage" },
   { name: "Saved", href: "/saved" },
+  { name: "Profile", href: "/profile" },
 ];
 
 export function Navigation() {
@@ -22,7 +23,7 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm shadow-sm border-b sticky top-0 z-40">
+    <header className="bg-white/95 backdrop-blur-sm shadow-sm border-b sticky top-0 z-40" role="banner">
       <div className="container-responsive">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -30,26 +31,30 @@ export function Navigation() {
             <Link 
               href="/" 
               className="flex items-center space-x-2 text-2xl font-bold text-foreground hover:text-primary transition-colors"
+              aria-label="PlayVibes home"
             >
-              <Music className="w-8 h-8 text-primary" />
+              <Music className="w-8 h-8 text-primary" aria-hidden="true" />
               <span className="hidden sm:block">PlayVibes</span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center space-x-1" aria-label="Main navigation">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 hover:bg-muted",
+                  "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 hover:bg-muted relative",
                   pathname === item.href
-                    ? "text-primary bg-primary/10"
+                    ? "text-primary bg-primary/10 shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {item.name}
+                {pathname === item.href && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-primary rounded-full" />
+                )}
               </Link>
             ))}
           </nav>
@@ -63,51 +68,56 @@ export function Navigation() {
               </AuthGuard>
             </div>
 
-            {/* Mobile menu button */}
+            {/* Mobile menu button - Minimum 44x44px touch target */}
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="md:hidden min-w-[44px] min-h-[44px] w-11 h-11 p-0"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? (
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               ) : (
-                <Menu className="w-5 h-5" />
+                <Menu className="w-6 h-6" />
               )}
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border animate-slide-up">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    "block px-3 py-2 text-base font-medium rounded-md transition-colors",
-                    pathname === item.href
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              
-              {/* Mobile Auth */}
-              <div className="pt-4 border-t border-border mt-4">
-                <AuthGuard fallback={<SignInButton />}>
-                  <UserProfile />
-                </AuthGuard>
-              </div>
+        <div 
+          className={cn(
+            "md:hidden border-t border-border overflow-hidden transition-all duration-300 ease-in-out",
+            mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          )}
+        >
+          <nav className="px-2 pt-2 pb-3 space-y-1" aria-label="Mobile navigation">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "block px-4 py-3 text-base font-medium rounded-md transition-all duration-200 min-h-[44px] flex items-center",
+                  pathname === item.href
+                    ? "text-primary bg-primary/10 shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+            
+            {/* Mobile Auth */}
+            <div className="pt-4 border-t border-border mt-4">
+              <AuthGuard fallback={<SignInButton />}>
+                <UserProfile />
+              </AuthGuard>
             </div>
-          </div>
-        )}
+          </nav>
+        </div>
       </div>
     </header>
   );

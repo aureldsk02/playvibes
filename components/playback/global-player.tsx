@@ -1,9 +1,12 @@
 'use client';
 
 import { usePlayback } from './playback-provider';
+import { PlayerControls } from './player-controls';
+import { ProgressBar } from './progress-bar';
+import { VolumeControl } from './volume-control';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 
 export function GlobalPlayer() {
   const {
@@ -15,37 +18,7 @@ export function GlobalPlayer() {
     setVolume
   } = usePlayback();
 
-  const [showVolumeControl, setShowVolumeControl] = useState(false);
-  const [localVolume, setLocalVolume] = useState(playbackState.volume);
-
-  useEffect(() => {
-    setLocalVolume(playbackState.volume);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playbackState.volume]);
-
-  const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!playbackState.currentTrack) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const width = rect.width;
-    const percentage = clickX / width;
-    const newPosition = percentage * playbackState.duration;
-
-    seek(newPosition);
-  };
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
-    setLocalVolume(newVolume);
-    setVolume(newVolume);
-  };
+  const [isMinimized, setIsMinimized] = useState(false);
 
   // Don't show the player if there's no current track or if not ready
   if (!playbackState.currentTrack || !playbackState.isReady) {
@@ -54,17 +27,34 @@ export function GlobalPlayer() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border shadow-2xl z-50 animate-slide-up">
-      <div className="container-responsive py-2 sm:py-3">
-        {/* Mobile Layout */}
-        <div className="block sm:hidden">
-          <div className="flex items-center justify-between mb-2">
+      <div className="container-responsive py-3 sm:py-3">
+        {/* Minimize/Expand Button - Minimum 44x44px touch target */}
+        <div className="absolute top-2 right-2 sm:right-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMinimized(!isMinimized)}
+            className="min-w-[44px] min-h-[44px] w-11 h-11 p-0 hover:bg-muted"
+            aria-label={isMinimized ? "Expand player" : "Minimize player"}
+          >
+            {isMinimized ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </Button>
+        </div>
+
+        {/* Minimized View */}
+        {isMinimized ? (
+          <div className="flex items-center justify-between pr-14">
             {/* Track info */}
             <div className="flex items-center space-x-3 flex-1 min-w-0">
               {playbackState.currentTrack.album.images[0] && (
                 <img
                   src={playbackState.currentTrack.album.images[0].url}
                   alt={playbackState.currentTrack.album.name}
-                  className="w-10 h-10 rounded-md shadow-sm"
+                  className="w-12 h-12 rounded-md shadow-sm flex-shrink-0"
                 />
               )}
               <div className="min-w-0 flex-1">
@@ -77,136 +67,130 @@ export function GlobalPlayer() {
               </div>
             </div>
 
-            {/* Mobile controls */}
-            <div className="flex items-center space-x-2">
-              <Button
-                onClick={togglePlay}
-                size="sm"
-                className="w-10 h-10 rounded-full p-0 shadow-md"
-              >
-                {playbackState.isPlaying ? (
-                  <Pause className="w-4 h-4" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Desktop Layout */}
-        <div className="hidden sm:flex items-center justify-between">
-          {/* Track info */}
-          <div className="flex items-center space-x-3 flex-1 min-w-0 max-w-xs lg:max-w-sm">
-            {playbackState.currentTrack.album.images[0] && (
-              <img
-                src={playbackState.currentTrack.album.images[0].url}
-                alt={playbackState.currentTrack.album.name}
-                className="w-12 h-12 rounded-md shadow-sm"
+            {/* Quick controls */}
+            <div className="flex-shrink-0">
+              <PlayerControls
+                isPlaying={playbackState.isPlaying}
+                onPlayPause={togglePlay}
+                onPrevious={previousTrack}
+                onNext={nextTrack}
+                canSkipPrev={!playbackState.disallows?.skipping_prev}
+                canSkipNext={!playbackState.disallows?.skipping_next}
               />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-foreground truncate">
-                {playbackState.currentTrack.name}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {playbackState.currentTrack.artists.map(artist => artist.name).join(', ')}
-              </p>
             </div>
           </div>
+        ) : (
+          <>
+            {/* Mobile Layout */}
+            <div className="block sm:hidden">
+              <div className="flex items-center justify-between mb-3 pr-14">
+                {/* Track info */}
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  {playbackState.currentTrack.album.images[0] && (
+                    <img
+                      src={playbackState.currentTrack.album.images[0].url}
+                      alt={playbackState.currentTrack.album.name}
+                      className="w-12 h-12 rounded-md shadow-sm flex-shrink-0"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {playbackState.currentTrack.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {playbackState.currentTrack.artists.map(artist => artist.name).join(', ')}
+                    </p>
+                  </div>
+                </div>
 
-          {/* Playback controls */}
-          <div className="flex items-center space-x-3 flex-1 justify-center max-w-md">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={previousTrack}
-              className="w-8 h-8 p-0 hover:bg-muted"
-            >
-              <SkipBack className="w-4 h-4" />
-            </Button>
-
-            <Button
-              onClick={togglePlay}
-              className="w-10 h-10 rounded-full p-0 shadow-md hover:shadow-lg transition-shadow"
-            >
-              {playbackState.isPlaying ? (
-                <Pause className="w-4 h-4" />
-              ) : (
-                <Play className="w-4 h-4" />
-              )}
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={nextTrack}
-              className="w-8 h-8 p-0 hover:bg-muted"
-            >
-              <SkipForward className="w-4 h-4" />
-            </Button>
-          </div>
-
-          {/* Volume and additional controls */}
-          <div className="flex items-center space-x-3 flex-1 justify-end max-w-xs">
-            {/* Premium status indicator */}
-            {!playbackState.hasSpotifyPremium && (
-              <div className="hidden lg:block text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400 rounded-full px-3 py-1">
-                Free (30s preview)
-              </div>
-            )}
-
-            {/* Volume control */}
-            <div className="relative hidden md:block">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowVolumeControl(!showVolumeControl)}
-                className="w-8 h-8 p-0 hover:bg-muted"
-              >
-                {localVolume === 0 ? (
-                  <VolumeX className="w-4 h-4" />
-                ) : (
-                  <Volume2 className="w-4 h-4" />
-                )}
-              </Button>
-
-              {showVolumeControl && (
-                <div className="absolute bottom-full right-0 mb-2 bg-card border border-border rounded-lg shadow-lg p-3 animate-scale-in">
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={localVolume}
-                    onChange={handleVolumeChange}
-                    className="w-20 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                {/* Mobile controls */}
+                <div className="flex-shrink-0">
+                  <PlayerControls
+                    isPlaying={playbackState.isPlaying}
+                    onPlayPause={togglePlay}
+                    onPrevious={previousTrack}
+                    onNext={nextTrack}
+                    canSkipPrev={!playbackState.disallows?.skipping_prev}
+                    canSkipNext={!playbackState.disallows?.skipping_next}
                   />
                 </div>
-              )}
+              </div>
+              
+              {/* Mobile Progress bar */}
+              <div className="mt-2">
+                <ProgressBar
+                  position={playbackState.position}
+                  duration={playbackState.duration}
+                  onSeek={seek}
+                  disabled={playbackState.disallows?.seeking || !playbackState.isReady}
+                />
+              </div>
             </div>
 
-            {/* Time display */}
-            <div className="text-xs text-muted-foreground min-w-0 hidden lg:block">
-              {formatTime(playbackState.position)} / {formatTime(playbackState.duration)}
-            </div>
-          </div>
-        </div>
+            {/* Desktop Layout */}
+            <div className="hidden sm:flex items-center justify-between pr-14">
+              {/* Track info */}
+              <div className="flex items-center space-x-3 flex-1 min-w-0 max-w-xs lg:max-w-sm">
+                {playbackState.currentTrack.album.images[0] && (
+                  <img
+                    src={playbackState.currentTrack.album.images[0].url}
+                    alt={playbackState.currentTrack.album.name}
+                    className="w-12 h-12 rounded-md shadow-sm"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {playbackState.currentTrack.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {playbackState.currentTrack.artists.map(artist => artist.name).join(', ')}
+                  </p>
+                </div>
+              </div>
 
-        {/* Progress bar */}
-        <div className="mt-2">
-          <div
-            className="w-full bg-muted rounded-full h-1 cursor-pointer hover:h-1.5 transition-all duration-200"
-            onClick={handleSeek}
-          >
-            <div
-              className="bg-primary h-full rounded-full transition-all duration-1000 shadow-sm"
-              style={{
-                width: `${(playbackState.position / playbackState.duration) * 100}%`
-              }}
-            />
-          </div>
-        </div>
+              {/* Playback controls */}
+              <div className="flex-1 max-w-md">
+                <PlayerControls
+                  isPlaying={playbackState.isPlaying}
+                  onPlayPause={togglePlay}
+                  onPrevious={previousTrack}
+                  onNext={nextTrack}
+                  canSkipPrev={!playbackState.disallows?.skipping_prev}
+                  canSkipNext={!playbackState.disallows?.skipping_next}
+                />
+              </div>
+
+              {/* Volume and additional controls */}
+              <div className="flex items-center space-x-3 flex-1 justify-end max-w-xs">
+                {/* Premium status indicator */}
+                {!playbackState.hasSpotifyPremium && (
+                  <div className="hidden lg:block text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400 rounded-full px-3 py-1">
+                    Free (30s preview)
+                  </div>
+                )}
+
+                {/* Volume control */}
+                <div className="hidden md:block">
+                  <VolumeControl
+                    volume={playbackState.volume}
+                    onVolumeChange={setVolume}
+                    disabled={!playbackState.isReady}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-2 hidden sm:block">
+              <ProgressBar
+                position={playbackState.position}
+                duration={playbackState.duration}
+                onSeek={seek}
+                disabled={playbackState.disallows?.seeking || !playbackState.isReady}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

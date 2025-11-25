@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { spotifyPlaybackService } from '@/lib/spotify-playback';
 import { PlaybackState } from '@/lib/types';
+import { useToast } from '@/components/ui/use-toast';
 
 interface PlaybackContextType {
   playbackState: PlaybackState;
@@ -49,6 +50,7 @@ export function PlaybackProvider({ children }: PlaybackProviderProps) {
   });
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Set up event listeners
@@ -79,6 +81,14 @@ export function PlaybackProvider({ children }: PlaybackProviderProps) {
     const handleError = (error: { type: string; message: string }) => {
       const errorMessage = `${error.type}: ${error.message}`;
       setError(errorMessage);
+
+      // Show toast notification for playback errors
+      toast({
+        title: "Playback Error",
+        description: error.message || "An error occurred during playback",
+        variant: "destructive",
+        duration: 4000,
+      });
 
       // Handle specific error types
       if (error.type === 'account' && error.message.includes('Premium')) {
@@ -122,6 +132,13 @@ export function PlaybackProvider({ children }: PlaybackProviderProps) {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to initialize player';
       setError(errorMessage);
+      
+      toast({
+        title: "Player Initialization Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       throw err;
     }
   };
@@ -133,6 +150,13 @@ export function PlaybackProvider({ children }: PlaybackProviderProps) {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to play playlist';
       setError(errorMessage);
+      
+      toast({
+        title: "Playback Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       throw err;
     }
   };
@@ -144,6 +168,13 @@ export function PlaybackProvider({ children }: PlaybackProviderProps) {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to play track';
       setError(errorMessage);
+      
+      toast({
+        title: "Playback Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       throw err;
     }
   };

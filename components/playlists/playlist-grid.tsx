@@ -17,6 +17,7 @@ interface PlaylistGridProps {
   onPlaylistLike?: (playlistId: string) => void;
   onPlaylistSave?: (playlistId: string) => void;
   onPlaylistPlay?: (playlistId: string) => void;
+  onPlaylistClick?: (playlistId: string) => void;
   onPlaylistUpdate?: (playlistId: string, updates: Partial<PlaylistWithDetails>) => void;
   onPlaylistRemove?: (playlistId: string) => void;
   showActions?: boolean;
@@ -40,6 +41,7 @@ export function PlaylistGrid({
   onPlaylistLike,
   onPlaylistSave,
   onPlaylistPlay,
+  onPlaylistClick,
   onPlaylistUpdate,
   onPlaylistRemove,
   showActions = true,
@@ -98,6 +100,9 @@ export function PlaylistGrid({
       }
       if (filters?.activities && filters.activities.length > 0) {
         params.append('activities', filters.activities.join(','));
+      }
+      if (filters?.sortBy) {
+        params.append('sortBy', filters.sortBy);
       }
 
       // Choose endpoint based on whether we have filters
@@ -271,6 +276,7 @@ export function PlaylistGrid({
             onLike={handleLike}
             onSave={handleSave}
             onPlay={onPlaylistPlay}
+            onClick={onPlaylistClick}
             showActions={showActions}
             className="animate-fade-in"
             style={{ animationDelay: `${index * 0.05}s` }}
@@ -278,23 +284,32 @@ export function PlaylistGrid({
         ))}
       </ResponsiveGrid>
 
-      {/* Load More - only show for internal playlists */}
+      {/* Infinite Scroll Sentinel - only show for internal playlists */}
       {!externalPlaylists && pagination.page < pagination.totalPages && (
-        <div className="flex justify-center mt-8">
-          <Button
-            onClick={handleLoadMore}
-            disabled={loadingMore}
-            variant="outline"
-          >
-            {loadingMore ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Loading...
-              </>
-            ) : (
-              'Load More'
-            )}
-          </Button>
+        <div
+          ref={(node) => {
+            if (node && !loadingMore) {
+              // Create intersection observer for infinite scroll
+              const observer = new IntersectionObserver(
+                (entries) => {
+                  if (entries[0].isIntersecting && !loadingMore) {
+                    handleLoadMore();
+                  }
+                },
+                { rootMargin: "200px" }
+              );
+              observer.observe(node);
+              return () => observer.disconnect();
+            }
+          }}
+          className="flex justify-center mt-8 py-4"
+        >
+          {loadingMore && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Loading more playlists...</span>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -7,6 +7,9 @@ interface AnimatedCardProps {
   gradient?: boolean;
   glass?: boolean;
   style?: React.CSSProperties;
+  onClick?: () => void;
+  role?: string;
+  "aria-label"?: string;
 }
 
 const hoverEffects = {
@@ -16,16 +19,19 @@ const hoverEffects = {
   none: "",
 };
 
-export function AnimatedCard({ 
-  children, 
-  className, 
+export function AnimatedCard({
+  children,
+  className,
   hover = "lift",
   gradient = false,
   glass = false,
-  style
+  style,
+  onClick,
+  role,
+  "aria-label": ariaLabel,
 }: AnimatedCardProps) {
   return (
-    <div 
+    <div
       className={cn(
         "rounded-xl border transition-all duration-300 ease-out",
         hoverEffects[hover],
@@ -36,6 +42,9 @@ export function AnimatedCard({
         className
       )}
       style={style}
+      onClick={onClick}
+      role={role}
+      aria-label={ariaLabel}
     >
       {children}
     </div>
