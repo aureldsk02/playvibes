@@ -5,13 +5,13 @@ import { eq, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 export async function GET(request: NextRequest) {
+  const baseUrl = process.env.BETTER_AUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
     const state = searchParams.get("state");
     const error = searchParams.get("error");
-
-    const baseUrl = process.env.BETTER_AUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
     if (error) {
       console.error("Spotify OAuth error:", error);
