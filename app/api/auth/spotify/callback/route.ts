@@ -11,16 +11,18 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get("state");
     const error = searchParams.get("error");
 
+    const baseUrl = process.env.BETTER_AUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
     if (error) {
       console.error("Spotify OAuth error:", error);
       return NextResponse.redirect(
-        `${process.env.BETTER_AUTH_URL}?error=spotify_auth_failed`
+        `${baseUrl}?error=spotify_auth_failed`
       );
     }
 
     if (!code || !state) {
       return NextResponse.redirect(
-        `${process.env.BETTER_AUTH_URL}?error=missing_parameters`
+        `${baseUrl}?error=missing_parameters`
       );
     }
 
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     if (!user.length) {
       return NextResponse.redirect(
-        `${process.env.BETTER_AUTH_URL}?error=invalid_state`
+        `${baseUrl}?error=invalid_state`
       );
     }
 
@@ -50,14 +52,14 @@ export async function GET(request: NextRequest) {
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        redirect_uri: `${process.env.BETTER_AUTH_URL}/api/auth/callback/spotify`,
+        redirect_uri: `${baseUrl}/api/auth/callback/spotify`,
       }),
     });
 
     if (!tokenResponse.ok) {
       console.error("Failed to exchange code for tokens:", tokenResponse.statusText);
       return NextResponse.redirect(
-        `${process.env.BETTER_AUTH_URL}?error=token_exchange_failed`
+        `${baseUrl}?error=token_exchange_failed`
       );
     }
 
@@ -73,7 +75,7 @@ export async function GET(request: NextRequest) {
     if (!userResponse.ok) {
       console.error("Failed to get Spotify user info:", userResponse.statusText);
       return NextResponse.redirect(
-        `${process.env.BETTER_AUTH_URL}?error=user_info_failed`
+        `${baseUrl}?error=user_info_failed`
       );
     }
 
@@ -127,12 +129,12 @@ export async function GET(request: NextRequest) {
 
     // Redirect to success page
     return NextResponse.redirect(
-      `${process.env.BETTER_AUTH_URL}?spotify_connected=true`
+      `${baseUrl}?spotify_connected=true`
     );
   } catch (error) {
     console.error("Error in Spotify callback:", error);
     return NextResponse.redirect(
-      `${process.env.BETTER_AUTH_URL}?error=callback_failed`
+      `${baseUrl}?error=callback_failed`
     );
   }
 }

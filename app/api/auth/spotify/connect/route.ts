@@ -16,10 +16,13 @@ export async function GET(request: NextRequest) {
 
     // Generate Spotify OAuth URL
     const spotifyAuthUrl = new URL("https://accounts.spotify.com/authorize");
+
+    const baseUrl = process.env.BETTER_AUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
     const params = {
       client_id: process.env.SPOTIFY_CLIENT_ID!,
       response_type: "code",
-      redirect_uri: `${process.env.BETTER_AUTH_URL}/api/auth/callback/spotify`,
+      redirect_uri: `${baseUrl}/api/auth/callback/spotify`,
       scope: [
         "user-read-email",
         "user-read-private",
@@ -63,10 +66,13 @@ export async function POST(request: NextRequest) {
 
     // Redirect to Spotify OAuth
     const spotifyAuthUrl = new URL("https://accounts.spotify.com/authorize");
+
+    const baseUrl = process.env.BETTER_AUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
     const params = {
       client_id: process.env.SPOTIFY_CLIENT_ID!,
       response_type: "code",
-      redirect_uri: `${process.env.BETTER_AUTH_URL}/api/auth/callback/spotify`,
+      redirect_uri: `${baseUrl}/api/auth/callback/spotify`,
       scope: [
         "user-read-email",
         "user-read-private",
