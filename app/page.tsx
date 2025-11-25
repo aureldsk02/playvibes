@@ -8,14 +8,16 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
 
   // Redirect to /browse if user is already logged in
   useEffect(() => {
+    console.log("Session state:", { session, isPending });
     if (session?.user) {
+      console.log("Redirecting to /browse...");
       router.push("/browse");
     }
-  }, [session, router]);
+  }, [session, isPending, router]);
   return (
     <div className="min-h-screen bg-background overflow-hidden selection:bg-primary/20">
       {/* Dynamic Background */}
