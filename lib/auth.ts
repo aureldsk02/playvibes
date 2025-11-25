@@ -3,9 +3,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db";
 import { users, accounts, sessions, verification } from "./db/schema";
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const databaseUrl = process.env.DATABASE_URL;
-const isMockDb = isDevelopment && (!databaseUrl || databaseUrl.includes('username:password'));
+
+
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {

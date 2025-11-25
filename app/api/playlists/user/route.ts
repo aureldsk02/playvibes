@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
     const playlistsData = await spotifyAPI.getUserPlaylists(accessToken, limit, offset);
 
     // Transform Spotify playlist data to our format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const playlists = playlistsData.items.map((playlist: any) => ({
       id: playlist.id,
       name: playlist.name,

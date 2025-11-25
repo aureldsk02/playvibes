@@ -1,14 +1,17 @@
 export interface ApiError extends Error {
   status?: number;
   code?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   details?: any;
 }
 
 export class ApiClientError extends Error implements ApiError {
   status?: number;
   code?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   details?: any;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(message: string, status?: number, code?: string, details?: any) {
     super(message);
     this.name = "ApiClientError";
@@ -57,6 +60,7 @@ export async function apiRequest<T>(
 
       if (!response.ok) {
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let errorDetails: any;
 
         try {
@@ -80,7 +84,7 @@ export async function apiRequest<T>(
         }
 
         lastError = error;
-        
+
         // Check if we should retry this error
         if (!finalRetryOptions.retryCondition(error)) {
           throw error;
@@ -98,7 +102,7 @@ export async function apiRequest<T>(
         );
 
         console.warn(`API request failed (attempt ${attempt + 1}/${finalRetryOptions.maxRetries + 1}), retrying in ${delay}ms:`, error.message);
-        
+
         await new Promise(resolve => setTimeout(resolve, delay));
         continue;
       }
@@ -140,7 +144,7 @@ export async function apiRequest<T>(
       );
 
       console.warn(`API request failed (attempt ${attempt + 1}/${finalRetryOptions.maxRetries + 1}), retrying in ${delay}ms:`, lastError.message);
-      
+
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -153,6 +157,7 @@ export const apiClient = {
   get: <T>(url: string, options?: RequestInit, retryOptions?: RetryOptions) =>
     apiRequest<T>(url, { ...options, method: "GET" }, retryOptions),
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   post: <T>(url: string, data?: any, options?: RequestInit, retryOptions?: RetryOptions) =>
     apiRequest<T>(
       url,
@@ -164,6 +169,7 @@ export const apiClient = {
       retryOptions
     ),
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   put: <T>(url: string, data?: any, options?: RequestInit, retryOptions?: RetryOptions) =>
     apiRequest<T>(
       url,
@@ -192,10 +198,10 @@ export function getErrorMessage(error: unknown): string {
   if (error instanceof ApiClientError) {
     return error.message;
   }
-  
+
   if (error instanceof Error) {
     return error.message;
   }
-  
+
   return "An unexpected error occurred";
 }

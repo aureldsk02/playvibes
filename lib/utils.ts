@@ -102,12 +102,13 @@ export function getImageUrl(images: Array<{ url: string; height?: number; width?
 }
 
 // Debounce function for search inputs
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null
-  
+
   return (...args: Parameters<T>) => {
     if (timeout) clearTimeout(timeout)
     timeout = setTimeout(() => func(...args), wait)
@@ -122,9 +123,9 @@ export function parseArrayFromQuery(value: string | string[] | undefined): strin
 }
 
 // Build query string from object
-export function buildQueryString(params: Record<string, any>): string {
+export function buildQueryString(params: Record<string, string | number | boolean | null | undefined | string[]>): string {
   const searchParams = new URLSearchParams()
-  
+
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       if (Array.isArray(value)) {
@@ -136,6 +137,6 @@ export function buildQueryString(params: Record<string, any>): string {
       }
     }
   })
-  
+
   return searchParams.toString()
 }

@@ -1,6 +1,7 @@
+import 'dotenv/config';
 import { db } from './index';
 import { users, sharedPlaylists, playlistLikes, playlistComments, savedPlaylists } from './schema';
-import { eq } from 'drizzle-orm';
+import { fileURLToPath } from 'url';
 
 async function seed() {
   console.log('🌱 Seeding database...');
@@ -166,7 +167,7 @@ async function seed() {
 }
 
 // Run the seed function if this file is executed directly
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   seed()
     .then(() => {
       console.log('Seeding completed');

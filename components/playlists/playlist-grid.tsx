@@ -68,6 +68,7 @@ export function PlaylistGrid({
       setPagination(prev => ({ ...prev, page: 1 }));
       fetchPlaylists(1, true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, externalPlaylists]);
 
   const fetchPlaylists = async (page: number = 1, reset: boolean = false) => {
@@ -116,7 +117,7 @@ export function PlaylistGrid({
     } catch (err) {
       const errorMessage = getErrorMessage(err);
       setError(errorMessage);
-      
+
       if (reset) {
         toast({
           title: "Error loading playlists",
@@ -140,8 +141,8 @@ export function PlaylistGrid({
     try {
       const playlist = playlists.find(p => p.id === playlistId);
       const method = playlist?.isLiked ? 'DELETE' : 'POST';
-      
-      const data = method === 'DELETE' 
+
+      const data = method === 'DELETE'
         ? await apiClient.delete<{ isLiked: boolean; likesCount: number }>(`/api/playlists/${playlistId}/like`)
         : await apiClient.post<{ isLiked: boolean; likesCount: number }>(`/api/playlists/${playlistId}/like`);
 
@@ -179,8 +180,8 @@ export function PlaylistGrid({
     try {
       const playlist = playlists.find(p => p.id === playlistId);
       const method = playlist?.isSaved ? 'DELETE' : 'POST';
-      
-      const data = method === 'DELETE' 
+
+      const data = method === 'DELETE'
         ? await apiClient.delete<{ isSaved: boolean }>(`/api/playlists/${playlistId}/save`)
         : await apiClient.post<{ isSaved: boolean }>(`/api/playlists/${playlistId}/save`);
 

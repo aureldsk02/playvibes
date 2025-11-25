@@ -1,11 +1,11 @@
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { 
-  users, 
-  accounts, 
-  sharedPlaylists, 
-  playlistLikes, 
-  playlistComments, 
-  savedPlaylists 
+import {
+  users,
+  accounts,
+  sharedPlaylists,
+  playlistLikes,
+  playlistComments,
+  savedPlaylists
 } from './db/schema';
 
 // Database model types
@@ -148,8 +148,8 @@ export interface SpotifyPlayerOptions {
 export interface SpotifyPlayer {
   connect(): Promise<boolean>;
   disconnect(): void;
-  addListener(event: string, callback: Function): void;
-  removeListener(event: string, callback?: Function): void;
+  addListener(event: string, callback: (data: unknown) => void): void;
+  removeListener(event: string, callback?: (data: unknown) => void): void;
   getCurrentState(): Promise<SpotifyPlayerState | null>;
   setName(name: string): Promise<void>;
   getVolume(): Promise<number>;
@@ -165,7 +165,7 @@ export interface SpotifyPlayer {
 export interface SpotifyPlayerState {
   context: {
     uri: string;
-    metadata: any;
+    metadata: Record<string, unknown>;
   };
   disallows: {
     pausing: boolean;

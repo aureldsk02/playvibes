@@ -6,20 +6,21 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-rea
 import { useState, useEffect } from 'react';
 
 export function GlobalPlayer() {
-  const { 
-    playbackState, 
-    togglePlay, 
-    previousTrack, 
-    nextTrack, 
+  const {
+    playbackState,
+    togglePlay,
+    previousTrack,
+    nextTrack,
     seek,
-    setVolume 
+    setVolume
   } = usePlayback();
-  
+
   const [showVolumeControl, setShowVolumeControl] = useState(false);
   const [localVolume, setLocalVolume] = useState(playbackState.volume);
 
   useEffect(() => {
     setLocalVolume(playbackState.volume);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playbackState.volume]);
 
   const formatTime = (ms: number) => {
@@ -30,13 +31,13 @@ export function GlobalPlayer() {
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!playbackState.currentTrack) return;
-    
+
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const width = rect.width;
     const percentage = clickX / width;
     const newPosition = percentage * playbackState.duration;
-    
+
     seek(newPosition);
   };
 
@@ -169,7 +170,7 @@ export function GlobalPlayer() {
                   <Volume2 className="w-4 h-4" />
                 )}
               </Button>
-              
+
               {showVolumeControl && (
                 <div className="absolute bottom-full right-0 mb-2 bg-card border border-border rounded-lg shadow-lg p-3 animate-scale-in">
                   <input
@@ -194,7 +195,7 @@ export function GlobalPlayer() {
 
         {/* Progress bar */}
         <div className="mt-2">
-          <div 
+          <div
             className="w-full bg-muted rounded-full h-1 cursor-pointer hover:h-1.5 transition-all duration-200"
             onClick={handleSeek}
           >

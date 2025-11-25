@@ -58,7 +58,6 @@ export async function POST(
 
     // Add save
     await db.insert(savedPlaylists).values({
-      id: nanoid(),
       playlistId,
       userId: session.user.id,
     });

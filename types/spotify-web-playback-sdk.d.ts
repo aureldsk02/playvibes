@@ -13,8 +13,10 @@ declare global {
   interface SpotifyPlayer {
     connect(): Promise<boolean>;
     disconnect(): void;
-    addListener(event: string, callback: Function): void;
-    removeListener(event: string, callback?: Function): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    addListener(event: string, callback: (data: any) => void): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    removeListener(event: string, callback?: (data: any) => void): void;
     getCurrentState(): Promise<SpotifyPlayerState | null>;
     setName(name: string): Promise<void>;
     getVolume(): Promise<number>;
@@ -30,7 +32,7 @@ declare global {
   interface SpotifyPlayerState {
     context: {
       uri: string;
-      metadata: any;
+      metadata: Record<string, unknown>;
     };
     disallows: {
       pausing: boolean;
@@ -72,4 +74,4 @@ declare global {
   }
 }
 
-export {};
+export { };

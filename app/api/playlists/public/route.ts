@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
     let playlistsWithUserActions = playlists;
     if (session?.user) {
       const playlistIds = playlists.map((p: { id: string }) => p.id);
-      
+
       // Get user's likes for these playlists
       const userLikes = await db
         .select({ playlistId: playlistLikes.playlistId })
@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
       const likedPlaylistIds = new Set(userLikes.map((like: { playlistId: string }) => like.playlistId));
       const savedPlaylistIds = new Set(userSaves.map((save: { playlistId: string }) => save.playlistId));
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       playlistsWithUserActions = playlists.map((playlist: any) => ({
         ...playlist,
         isLiked: likedPlaylistIds.has(playlist.id),

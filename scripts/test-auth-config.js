@@ -3,17 +3,19 @@ console.log('Testing authentication configuration...');
 
 try {
   // Test database connection
-  const { db } = require('../lib/db/index.ts');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  import { db } from '../lib/db/index.ts';
   console.log('✅ Database connection configured');
-  
+
   // Test auth configuration
-  const { auth } = require('../lib/auth.ts');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  import { auth } from '../lib/auth.ts';
   console.log('✅ Better Auth configured');
-  
+
   // Check required tables in schema
-  const schema = require('../lib/db/schema.ts');
+  import * as schema from '../lib/db/schema.ts';
   const requiredTables = ['users', 'accounts', 'sessions', 'verification'];
-  
+
   for (const table of requiredTables) {
     if (schema[table]) {
       console.log(`✅ Table '${table}' found in schema`);
@@ -21,10 +23,10 @@ try {
       console.log(`❌ Table '${table}' missing from schema`);
     }
   }
-  
+
   console.log('\n🎉 Authentication configuration looks good!');
   console.log('Note: You still need to apply database migrations to create the actual tables.');
-  
+
 } catch (error) {
   console.error('❌ Configuration error:', error.message);
   console.log('\nPlease check:');

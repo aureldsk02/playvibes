@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { spotifyPlaybackService } from '@/lib/spotify-playback';
-import { PlaybackState, SpotifyWebPlaybackTrack } from '@/lib/types';
+import { PlaybackState } from '@/lib/types';
 
 interface PlaybackContextType {
   playbackState: PlaybackState;
@@ -79,7 +79,7 @@ export function PlaybackProvider({ children }: PlaybackProviderProps) {
     const handleError = (error: { type: string; message: string }) => {
       const errorMessage = `${error.type}: ${error.message}`;
       setError(errorMessage);
-      
+
       // Handle specific error types
       if (error.type === 'account' && error.message.includes('Premium')) {
         setPlaybackState(prev => ({
@@ -105,7 +105,7 @@ export function PlaybackProvider({ children }: PlaybackProviderProps) {
   const initializePlayer = async (accessToken: string) => {
     try {
       setError(null);
-      
+
       // Wait for SDK to be ready
       const waitForSDK = () => {
         return new Promise<void>((resolve) => {

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { spotifyPlaybackService } from '@/lib/spotify-playback';
-import { PlaybackState, SpotifyWebPlaybackTrack } from '@/lib/types';
+import { PlaybackState } from '@/lib/types';
 
 interface PlaylistPlayerProps {
   accessToken: string;
@@ -148,7 +148,7 @@ export function PlaylistPlayer({ accessToken, playlistUri, onError }: PlaylistPl
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
         <p className="text-red-800 text-sm">
-          {playbackState.hasSpotifyPremium === false 
+          {playbackState.hasSpotifyPremium === false
             ? "Spotify Premium is required for full playback. Free users can only preview tracks."
             : error
           }

@@ -80,14 +80,15 @@ export async function POST(request: NextRequest) {
     );
 
     let genres: string[] = [];
-    let moods: string[] = [];
-    let activities: string[] = [];
+    const moods: string[] = [];
+    const activities: string[] = [];
 
     if (tracksResponse.ok) {
       const tracksData = await tracksResponse.json();
-      
+
       // Extract genres from track artists (simplified approach)
       const artistIds = tracksData.items
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map((item: any) => item.track?.artists?.[0]?.id)
         .filter(Boolean)
         .slice(0, 10); // Limit to first 10 artists to avoid rate limits
@@ -101,9 +102,10 @@ export async function POST(request: NextRequest) {
         if (artistsResponse.ok) {
           const artistsData = await artistsResponse.json();
           const allGenres = artistsData.artists
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .flatMap((artist: any) => artist.genres || [])
             .filter(Boolean) as string[];
-          
+
           // Get unique genres
           genres = [...new Set(allGenres)].slice(0, 5);
         }
@@ -111,13 +113,13 @@ export async function POST(request: NextRequest) {
 
       // Simple mood/activity inference based on playlist name and description
       const text = `${spotifyPlaylist.name} ${spotifyPlaylist.description || ''}`.toLowerCase();
-      
+
       // Basic mood detection
       if (text.includes('chill') || text.includes('relax')) moods.push('chill');
       if (text.includes('happy') || text.includes('upbeat')) moods.push('happy');
       if (text.includes('sad') || text.includes('melancholy')) moods.push('sad');
       if (text.includes('energetic') || text.includes('pump')) moods.push('energetic');
-      
+
       // Basic activity detection
       if (text.includes('workout') || text.includes('gym')) activities.push('workout');
       if (text.includes('study') || text.includes('focus')) activities.push('study');

@@ -55,6 +55,7 @@ export function PlaylistSelector({ onPlaylistToggle, className }: PlaylistSelect
       const response = await fetch("/api/playlists/shared");
       if (response.ok) {
         const data = await response.json();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setSharedPlaylists(new Set(data.playlists.map((p: any) => p.spotifyPlaylistId)));
       }
     } catch (err) {
@@ -112,10 +113,11 @@ export function PlaylistSelector({ onPlaylistToggle, className }: PlaylistSelect
       if (!sharedResponse.ok) {
         throw new Error("Failed to get shared playlists");
       }
-      
+
       const sharedData = await sharedResponse.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sharedPlaylist = sharedData.playlists.find((p: any) => p.spotifyPlaylistId === spotifyPlaylistId);
-      
+
       if (!sharedPlaylist) {
         throw new Error("Playlist is not shared");
       }

@@ -69,24 +69,25 @@ export function CommentSection({
     if (showComments) {
       fetchComments();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showComments, playlistId]);
 
   // Submit new comment
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newComment.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
-    
+
     try {
       const data = await apiClient.post<{ data: Comment }>(`/api/playlists/${playlistId}/comments`, {
         content: newComment.trim(),
       });
-      
+
       setComments((prev) => [data.data, ...prev]);
       setNewComment("");
-      
+
       toast({
         title: "Comment added!",
         description: "Your comment has been posted successfully.",
@@ -109,7 +110,7 @@ export function CommentSection({
     try {
       await apiClient.delete(`/api/playlists/${playlistId}/comments/${commentId}`);
       setComments((prev) => prev.filter((comment) => comment.id !== commentId));
-      
+
       toast({
         title: "Comment deleted",
         description: "Your comment has been removed.",
@@ -221,7 +222,7 @@ export function CommentSection({
                       {getInitials(comment.user.name)}
                     </AvatarFallback>
                   </Avatar>
-                  
+
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">
@@ -233,7 +234,7 @@ export function CommentSection({
                         })}
                       </span>
                     </div>
-                    
+
                     <p className="text-sm text-foreground whitespace-pre-wrap">
                       {comment.content}
                     </p>

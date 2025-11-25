@@ -5,7 +5,7 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Button } from "@/components/ui/button";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { PlaylistWithDetails } from "@/lib/types";
-import { MessageCircle, Bookmark, Play } from "lucide-react";
+import { MessageCircle, Play } from "lucide-react";
 import { LikeButton } from "./like-button";
 import { SaveButton } from "./save-button";
 import { CommentSection } from "./comment-section";
@@ -18,6 +18,7 @@ interface PlaylistCardProps {
   currentUserId?: string;
   onLike?: (playlistId: string) => void;
   onSave?: (playlistId: string) => void;
+  style?: React.CSSProperties;
   onPlay?: (playlistId: string) => void;
   className?: string;
 }
@@ -31,6 +32,7 @@ export function PlaylistCard({
   onSave,
   onPlay,
   className = "",
+  style,
 }: PlaylistCardProps) {
   const [localPlaylist, setLocalPlaylist] = useState(playlist);
 
@@ -62,9 +64,10 @@ export function PlaylistCard({
   };
 
   return (
-    <AnimatedCard 
-      hover="lift" 
+    <AnimatedCard
+      hover="lift"
       className={cn("overflow-hidden animate-fade-in", className)}
+      style={style}
     >
       {/* Playlist Image */}
       <div className="relative aspect-square group overflow-hidden">
@@ -85,7 +88,7 @@ export function PlaylistCard({
             </div>
           }
         />
-        
+
         {/* Play button overlay */}
         {onPlay && (
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
@@ -119,38 +122,38 @@ export function PlaylistCard({
         </div>
 
         {/* Tags */}
-        {((playlist.genres && playlist.genres.length > 0) || 
-          (playlist.moods && playlist.moods.length > 0) || 
+        {((playlist.genres && playlist.genres.length > 0) ||
+          (playlist.moods && playlist.moods.length > 0) ||
           (playlist.activities && playlist.activities.length > 0)) && (
-          <div className="mb-3">
-            <div className="flex flex-wrap gap-1">
-              {playlist.genres && playlist.genres.slice(0, 2).map((genre) => (
-                <span
-                  key={genre}
-                  className="inline-block px-2 py-1 text-xs bg-primary/10 text-primary rounded-full"
-                >
-                  {genre}
-                </span>
-              ))}
-              {playlist.moods && playlist.moods.slice(0, 2).map((mood) => (
-                <span
-                  key={mood}
-                  className="inline-block px-2 py-1 text-xs bg-secondary/80 text-secondary-foreground rounded-full"
-                >
-                  {mood}
-                </span>
-              ))}
-              {playlist.activities && playlist.activities.slice(0, 1).map((activity) => (
-                <span
-                  key={activity}
-                  className="inline-block px-2 py-1 text-xs bg-accent text-accent-foreground rounded-full"
-                >
-                  {activity}
-                </span>
-              ))}
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-1">
+                {playlist.genres && playlist.genres.slice(0, 2).map((genre) => (
+                  <span
+                    key={genre}
+                    className="inline-block px-2 py-1 text-xs bg-primary/10 text-primary rounded-full"
+                  >
+                    {genre}
+                  </span>
+                ))}
+                {playlist.moods && playlist.moods.slice(0, 2).map((mood) => (
+                  <span
+                    key={mood}
+                    className="inline-block px-2 py-1 text-xs bg-secondary/80 text-secondary-foreground rounded-full"
+                  >
+                    {mood}
+                  </span>
+                ))}
+                {playlist.activities && playlist.activities.slice(0, 1).map((activity) => (
+                  <span
+                    key={activity}
+                    className="inline-block px-2 py-1 text-xs bg-accent text-accent-foreground rounded-full"
+                  >
+                    {activity}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Actions */}
         {showActions && (

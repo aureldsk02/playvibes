@@ -6,6 +6,7 @@ interface AnimatedCardProps {
   hover?: "lift" | "glow" | "scale" | "none";
   gradient?: boolean;
   glass?: boolean;
+  style?: React.CSSProperties;
 }
 
 const hoverEffects = {
@@ -20,18 +21,22 @@ export function AnimatedCard({
   className, 
   hover = "lift",
   gradient = false,
-  glass = false
+  glass = false,
+  style
 }: AnimatedCardProps) {
   return (
-    <div className={cn(
-      "rounded-xl border transition-all duration-300 ease-out",
-      hoverEffects[hover],
-      gradient && "bg-gradient-to-br from-card to-card/50",
-      glass && "backdrop-blur-sm bg-card/80",
-      !gradient && !glass && "bg-card",
-      "border-border",
-      className
-    )}>
+    <div 
+      className={cn(
+        "rounded-xl border transition-all duration-300 ease-out",
+        hoverEffects[hover],
+        gradient && "bg-gradient-to-br from-card to-card/50",
+        glass && "backdrop-blur-sm bg-card/80",
+        !gradient && !glass && "bg-card",
+        "border-border",
+        className
+      )}
+      style={style}
+    >
       {children}
     </div>
   );

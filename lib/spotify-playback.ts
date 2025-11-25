@@ -1,10 +1,11 @@
-import { PlaybackState, SpotifyWebPlaybackTrack } from './types';
+import { PlaybackState } from './types';
 
 export class SpotifyPlaybackService {
   private player: SpotifyPlayer | null = null;
   private deviceId: string | null = null;
   private accessToken: string | null = null;
-  private listeners: Map<string, Function[]> = new Map();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private listeners: Map<string, ((data?: any) => void)[]> = new Map();
 
   constructor() {
     this.initializeSDK();
@@ -53,7 +54,7 @@ export class SpotifyPlaybackService {
           'Authorization': `Bearer ${accessToken}`
         }
       });
-      
+
       if (response.ok) {
         const user = await response.json();
         return user.product === 'premium';
@@ -233,16 +234,18 @@ export class SpotifyPlaybackService {
   }
 
   // Event system
-  on(event: string, callback: Function): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on(event: string, callback: (data?: any) => void): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
     }
     this.listeners.get(event)!.push(callback);
   }
 
-  off(event: string, callback?: Function): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  off(event: string, callback?: (data?: any) => void): void {
     if (!this.listeners.has(event)) return;
-    
+
     if (callback) {
       const callbacks = this.listeners.get(event)!;
       const index = callbacks.indexOf(callback);
@@ -254,6 +257,7 @@ export class SpotifyPlaybackService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private emit(event: string, data?: any): void {
     if (this.listeners.has(event)) {
       this.listeners.get(event)!.forEach(callback => callback(data));

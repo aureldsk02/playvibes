@@ -58,7 +58,6 @@ export async function POST(
 
     // Add like
     await db.insert(playlistLikes).values({
-      id: nanoid(),
       playlistId,
       userId: session.user.id,
     });
