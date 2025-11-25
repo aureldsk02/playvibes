@@ -2,7 +2,9 @@
 
 ## ✅ Déploiement Vercel Complété
 
-**URL de Production:** https://playvibes-isbsq584q-aureldsk02s-projects.vercel.app
+**URL de Production:** https://playvibes-plvqaqbtz-aureldsk02s-projects.vercel.app
+
+> **Note:** L'application détecte automatiquement l'URL d'authentification en production.
 
 ## 📋 Étapes Restantes
 
@@ -29,7 +31,7 @@
 | `SPOTIFY_CLIENT_ID` | `eab91e353ecc4cf99c41cc5816ea849e` |
 | `SPOTIFY_CLIENT_SECRET` | `0075c371f8a1432780cb56752422612e` |
 | `BETTER_AUTH_SECRET` | `1GzIW0Pj33c8twIyA1i6a4GvDic1S6meGccfNwuO8vo=` |
-| `BETTER_AUTH_URL` | `https://playvibes-isbsq584q-aureldsk02s-projects.vercel.app` |
+| `BETTER_AUTH_URL` | `https://playvibes-plvqaqbtz-aureldsk02s-projects.vercel.app` |
 
 3. Pour chaque variable, sélectionnez **Production, Preview, Development**
 4. Cliquez sur "Save"
@@ -49,7 +51,7 @@ DATABASE_URL='postgresql://[votre_connection_string_neon]' pnpm db:push
 3. Cliquez sur "Edit Settings"
 4. Dans "Redirect URIs", ajoutez:
    ```
-   https://playvibes-isbsq584q-aureldsk02s-projects.vercel.app/api/auth/callback/spotify
+   https://playvibes-plvqaqbtz-aureldsk02s-projects.vercel.app/api/auth/callback/spotify
    ```
 5. Cliquez sur "Add" puis "Save"
 
@@ -63,7 +65,7 @@ vercel --prod
 
 ## ✅ Vérification Finale
 
-1. Visitez: https://playvibes-isbsq584q-aureldsk02s-projects.vercel.app
+1. Visitez: https://playvibes-plvqaqbtz-aureldsk02s-projects.vercel.app
 2. Cliquez sur "Sign in with Spotify"
 3. Autorisez l'application
 4. Vous devriez être connecté !
