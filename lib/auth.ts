@@ -29,6 +29,11 @@ export const auth = betterAuth({
         "user-read-playback-state",
         "user-modify-playback-state",
       ],
+      mapProfileToUser: (profile) => {
+        return {
+          spotifyId: profile.id,
+        };
+      },
     },
   },
   session: {
