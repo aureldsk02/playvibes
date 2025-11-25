@@ -112,7 +112,8 @@ function SignInButton() {
       await signInWithSpotify();
     } catch (error) {
       console.error("Error signing in:", error);
-      alert("Error signing in: " + JSON.stringify(error));
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      alert(`Error signing in: ${errorMessage}\n\nFull error: ${JSON.stringify(error, Object.getOwnPropertyNames(error))}`);
     }
   };
 
