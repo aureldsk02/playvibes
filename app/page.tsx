@@ -112,6 +112,7 @@ function SignInButton() {
       await signInWithSpotify();
     } catch (error) {
       console.error("Error signing in:", error);
+      alert("Error signing in: " + JSON.stringify(error));
     }
   };
 
