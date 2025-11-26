@@ -11,10 +11,10 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
-      users,
-      accounts,
-      sessions,
-      verification,
+      user: users,
+      account: accounts,
+      session: sessions,
+      verification: verification,
     },
   }),
   socialProviders: {
@@ -31,6 +31,7 @@ export const auth = betterAuth({
         "user-modify-playback-state",
       ],
       mapProfileToUser: (profile) => {
+        console.log("Spotify profile received:", profile);
         return {
           spotifyId: profile.id,
         };
@@ -40,5 +41,9 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 24 hours
+  },
+  logger: {
+    level: "debug",
+    disabled: false,
   },
 });
