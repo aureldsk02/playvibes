@@ -5,12 +5,12 @@ import { relations } from 'drizzle-orm';
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
-  emailVerified: timestamp('email_verified'),
+  emailVerified: timestamp('email_verified', { mode: 'date' }),
   name: text('name'),
   image: text('image'),
   spotifyId: text('spotify_id').unique(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow(),
 });
 
 // Accounts table for OAuth tokens (managed by Better Auth)
