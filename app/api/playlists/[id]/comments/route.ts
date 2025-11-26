@@ -38,6 +38,8 @@ export async function GET(
         user: {
           id: users.id,
           name: users.name,
+          email: users.email,
+          emailVerified: users.emailVerified,
           image: users.image,
         },
       })
@@ -129,6 +131,8 @@ export async function POST(
         user: {
           id: users.id,
           name: users.name,
+          email: users.email,
+          emailVerified: users.emailVerified,
           image: users.image,
         },
       })

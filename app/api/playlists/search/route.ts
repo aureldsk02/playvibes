@@ -94,6 +94,8 @@ export async function GET(request: NextRequest) {
         user: {
           id: users.id,
           name: users.name,
+          email: users.email,
+          emailVerified: users.emailVerified,
           image: users.image,
         },
         likesCount: sql<number>`COUNT(DISTINCT ${playlistLikes.playlistId})`,

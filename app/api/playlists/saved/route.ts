@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
           id: users.id,
           name: users.name,
           email: users.email,
+          emailVerified: users.emailVerified,
           image: users.image,
           spotifyId: users.spotifyId,
           createdAt: users.createdAt,
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
 
     // Check which playlists the current user has liked and saved
     const playlistIds = results.map((p: { id: string }) => p.id);
-    
+
     const userLikes = playlistIds.length > 0 ? await db
       .select({ playlistId: playlistLikes.playlistId })
       .from(playlistLikes)
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
         sql`${playlistLikes.playlistId} = ANY(${playlistIds}) AND ${playlistLikes.userId} = ${session.user.id}`
       ) : [];
 
-const userLikesSet = new Set(userLikes.map((like: { playlistId: string }) => like.playlistId));
+    const userLikesSet = new Set(userLikes.map((like: { playlistId: string }) => like.playlistId));
 
     // Transform results to include user interaction status
     const playlistsWithDetails: PlaylistWithDetails[] = results.map((result: PlaylistWithDetails) => ({
