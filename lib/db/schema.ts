@@ -15,6 +15,7 @@ export const users = pgTable('users', {
 // Accounts table for OAuth tokens (managed by Better Auth)
 export const accounts = pgTable('accounts', {
   id: text('id').primaryKey(),
+  accountId: text('account_id').notNull(),
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   provider: text('provider').notNull(),
   providerAccountId: text('provider_account_id').notNull(),
