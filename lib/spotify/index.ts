@@ -1,7 +1,7 @@
-import { db } from "./db";
-import { accounts } from "./db/schema";
+import { db } from "@/lib/db";
+import { accounts } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { SpotifyApiError } from "./spotify-error-handler";
+import { SpotifyApiError } from "./error";
 
 export interface SpotifyTokens {
   accessToken: string;
@@ -38,7 +38,7 @@ export class SpotifyAPI {
       }
 
       const data = await response.json();
-      
+
       return {
         accessToken: data.access_token,
         refreshToken: data.refresh_token || refreshToken, // Spotify may not return a new refresh token

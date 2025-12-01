@@ -7,7 +7,7 @@ import { PlaylistFilters } from "@/lib/types";
 import { usePlayback } from "@/components/playback/playback-provider";
 import { useSpotifyPlayer } from "@/hooks/use-spotify-player";
 import { WelcomeBanner } from "@/components/auth/welcome-banner";
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth/client";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Loader2 } from "lucide-react";
 

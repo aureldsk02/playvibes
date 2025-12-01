@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import "@/lib/error-handler";
+import "@/lib/utils/error";
 
 export function GlobalErrorInitializer() {
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { ApiClientError } from "./api-client";
+import { ApiClientError } from "@/lib/utils/api-client";
 
 export interface SpotifyError {
   error: {

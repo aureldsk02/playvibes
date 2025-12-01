@@ -6,36 +6,45 @@ import { sharedPlaylists } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { apiRateLimit, getIdentifier } from "@/lib/rate-limit";
+import { playlistSchema, safeValidateData } from "@/lib/validation/schemas";
+
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const identifier = getIdentifier(request);
+    const { success } = await apiRateLimit.limit(identifier);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
 
-    if (!session) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!session?.user) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { spotifyPlaylistId, isPublic } = body;
 
-    if (!spotifyPlaylistId || typeof isPublic !== "boolean") {
-      return NextResponse.json(
-        { error: "Missing required fields: spotifyPlaylistId, isPublic" },
-        { status: 400 }
-      );
+    // Validate input
+    const validation = safeValidateData(playlistSchema, body);
+
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
+
+    const { spotifyPlaylistId, isPublic } = validation.data;
 
     // Get valid access token
     const accessToken = await spotifyAPI.getValidAccessToken(session.user.id);
     if (!accessToken) {
-      return NextResponse.json(
-        { error: "Spotify connection required" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Spotify connection required" }, { status: 401 });
     }
 
     // Fetch playlist details from Spotify to ensure it exists and user has access
@@ -45,10 +54,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (!response.ok) {
-      return NextResponse.json(
-        { error: "Playlist not found or access denied" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Playlist not found or access denied" }, { status: 404 });
     }
 
     const spotifyPlaylist = await response.json();

@@ -1,5 +1,5 @@
-import { PlaybackState } from './types';
-import { loadSpotifySDK } from './lazy-spotify-sdk';
+import { PlaybackState } from '@/lib/types';
+import { loadSpotifySDK } from './lazy-sdk';
 
 export class SpotifyPlaybackService {
   private player: SpotifyPlayer | null = null;

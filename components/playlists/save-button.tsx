@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useOptimisticUpdate } from "@/hooks/use-optimistic-update";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@/lib/utils/api-client";
 
 interface SaveButtonProps {
   playlistId: string;

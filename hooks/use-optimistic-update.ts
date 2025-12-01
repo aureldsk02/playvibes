@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { getErrorMessage } from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/utils/api-client";
 
 interface UseOptimisticUpdateOptions<TState, TResult = void> {
   mutationFn: () => Promise<TResult>;

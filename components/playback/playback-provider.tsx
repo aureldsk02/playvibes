@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { spotifyPlaybackService } from '@/lib/spotify-playback';
+import { spotifyPlaybackService } from '@/lib/spotify/playback';
 import { PlaybackState } from '@/lib/types';
 import { useToast } from '@/components/ui/use-toast';
 

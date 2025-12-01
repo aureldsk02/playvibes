@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth/client";
 import { SpotifyConnectButton } from "./spotify-connect-button";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -51,7 +51,7 @@ export function UserProfile() {
       setIsSigningOut(true);
       setIsDropdownOpen(false);
       
-      const { signOut } = await import("@/lib/auth-client");
+      const { signOut } = await import("@/lib/auth/client");
       await signOut();
       
       // Show success toast
