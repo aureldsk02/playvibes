@@ -1,140 +1,144 @@
-# 🎵 PlayVibes - Playlist Sharing Platform
+# PlayVibes
 
-A modern web application for sharing and discovering Spotify playlists with the community.
+A modern web application for discovering, sharing, and managing Spotify playlists with a social twist.
 
-## ✨ Features
+## Features
 
-- 🎧 **Spotify Integration** - Connect your Spotify account
-- 📱 **Responsive Design** - Works on all devices
-- 🔍 **Smart Search** - Find playlists by genre, mood, and activity
-- ❤️ **Social Features** - Like, comment, and save playlists
-- 🎨 **Modern UI** - Built with shadcn/ui and Tailwind CSS
-- ⚡ **Fast Performance** - Optimized with Next.js 15
+- **Spotify Authentication**: Secure OAuth integration with Spotify
+- **Playlist Discovery**: Browse and search public playlists with advanced filters
+- **Social Features**: Like, save, and comment on playlists
+- **Real-time Playback**: Integrated Spotify Web Playback SDK
+- **Responsive Design**: Optimized for desktop and mobile devices
 
-## 🚀 Quick Start
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Database**: PostgreSQL (Neon for production, Docker for local)
+- **ORM**: Drizzle
+- **Authentication**: Better Auth
+- **Styling**: Tailwind CSS
+- **Testing**: Jest + React Testing Library
+- **Code Quality**: ESLint, Prettier, Husky
+
+## Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL database
+
+- Node.js 18+ and npm
+- Docker (for local database)
 - Spotify Developer Account
 
-### Installation
+### Local Development
 
-1. **Clone the repository**
+1. **Clone and install**:
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/kenzo207/playvibes.git
    cd playvibes
-   ```
-
-2. **Install dependencies**
-   ```bash
    npm install
    ```
 
-3. **Set up environment variables**
+2. **Configure environment**:
    ```bash
    cp .env.example .env.local
    # Edit .env.local with your credentials
    ```
 
-4. **Set up database**
+3. **Start local database**:
    ```bash
+   docker compose up -d
    npm run db:push
    ```
 
-5. **Start development server**
+4. **Run development server**:
    ```bash
+   ./start.sh
+   # or
    npm run dev
    ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see the app.
+5. **Open** http://localhost:3000
 
-## 🔧 Configuration
+## Environment Variables
 
-### Spotify API Setup
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Create a new app
-3. Add redirect URI: `http://localhost:3000/api/auth/callback/spotify`
-4. Copy Client ID and Secret to `.env.local`
+See `.env.example` for all required variables:
 
-### Database Setup
-See `QUICK_DB_SETUP.md` for detailed database configuration instructions.
+- `DATABASE_URL`: PostgreSQL connection string
+- `BETTER_AUTH_SECRET`: Random secret for auth (generate with `openssl rand -base64 32`)
+- `BETTER_AUTH_URL`: Your app URL
+- `SPOTIFY_CLIENT_ID`: From Spotify Developer Dashboard
+- `SPOTIFY_CLIENT_SECRET`: From Spotify Developer Dashboard
 
-## 📦 Deployment
+## Deployment
 
-### Vercel (Recommended)
-1. Install Vercel CLI: `npm i -g vercel`
-2. Deploy: `vercel`
-3. Set up environment variables in Vercel dashboard
-4. Apply database schema: `npm run db:push`
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed Vercel deployment instructions.
 
-See `DEPLOYMENT_GUIDE.md` for complete deployment instructions.
-
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 15 with App Router
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: Better Auth with Spotify OAuth
-- **Deployment**: Vercel
-- **Language**: TypeScript
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 playvibes/
-├── app/                 # Next.js app directory
-├── components/          # React components
-│   ├── ui/             # shadcn/ui components
-│   ├── auth/           # Authentication components
-│   ├── playlists/      # Playlist-related components
-│   └── layout/         # Layout components
-├── lib/                # Utilities and configurations
-│   ├── db/             # Database schema and connection
-│   └── auth.ts         # Authentication configuration
-├── hooks/              # Custom React hooks
-└── public/             # Static assets
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   └── (pages)/           # Page components
+├── components/            # React components
+├── lib/                   # Core utilities
+│   ├── auth/             # Authentication
+│   ├── spotify/          # Spotify integration
+│   ├── utils/            # Utilities
+│   └── validation/       # Input validation
+├── hooks/                # Custom React hooks
+└── __tests__/            # Test files
 ```
 
-## 🎯 Features Implemented
+## Security Features
 
-- ✅ User authentication with Spotify
-- ✅ Responsive navigation with mobile menu
-- ✅ Playlist browsing and search
-- ✅ Like and save functionality
-- ✅ Comment system
-- ✅ Spotify playback integration
-- ✅ Modern UI with animations
-- ✅ Optimized images with lazy loading
+- **Rate Limiting**: Protects against abuse (Upstash Redis)
+- **Input Validation**: Zod schemas for all API inputs
+- **XSS Protection**: Sanitization of user-generated content
+- **CSRF Protection**: Built into Better Auth
 
-## 🔄 Available Scripts
+## Testing
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run db:generate` - Generate database migrations
-- `npm run db:push` - Push schema to database
-- `npm run db:studio` - Open Drizzle Studio
+```bash
+# Run all tests
+npm test
 
-## 🤝 Contributing
+# Watch mode
+npm run test:watch
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+# Coverage report
+npm run test:coverage
+```
 
-## 📄 License
+## Code Quality
 
-This project is licensed under the MIT License.
+```bash
+# Lint
+npm run lint
 
-## 🆘 Support
+# Format
+npm run format
 
-- Check `AUTH_FIX_GUIDE.md` for authentication issues
-- See `DEPLOYMENT_GUIDE.md` for deployment help
-- Review `QUICK_DB_SETUP.md` for database setup
+# Type check
+npm run build
+```
 
----
+## Documentation
 
-Built with ❤️ using modern web technologies
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - Vercel deployment guide
+- [TESTING.md](./TESTING.md) - Testing guide
+- [START.md](./START.md) - Detailed local setup
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests and linting
+4. Submit a pull request
+
+## License
+
+MIT
+
+## Support
+
+For issues or questions, please open a GitHub issue.
