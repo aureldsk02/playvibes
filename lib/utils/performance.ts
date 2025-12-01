@@ -73,7 +73,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 // React hook for throttled values
 export function useThrottle<T>(value: T, delay: number): T {
   const [throttledValue, setThrottledValue] = useState<T>(value);
-  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
+  const [lastUpdated, setLastUpdated] = useState<number>(() => Date.now());
 
   useEffect(() => {
     const now = Date.now();
