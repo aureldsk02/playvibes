@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
-import { spotifyPlaybackService } from '@/lib/spotify-playback';
+import { spotifyPlaybackService } from '@/lib/spotify/playback';
 import { PlaybackState } from '@/lib/types';
 
 interface PlaylistPlayerProps {

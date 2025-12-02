@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { CACHE_TIME } from '@/lib/swr-config';
+import { CACHE_TIME } from '@/lib/utils/swr';
 
 interface SpotifyTrack {
   id: string;

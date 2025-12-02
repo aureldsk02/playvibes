@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthGuard } from "@/components/auth/auth-guard";
-import { signInWithSpotify, useSession } from "@/lib/auth-client";
+import { signInWithSpotify, useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {

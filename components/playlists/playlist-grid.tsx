@@ -8,7 +8,7 @@ import { ResponsiveGrid } from "@/components/layout/responsive-grid";
 import { PlaylistWithDetails, PlaylistFilters } from "@/lib/types";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import { apiClient, getErrorMessage } from "@/lib/utils/api-client";
 
 interface PlaylistGridProps {
   playlists?: PlaylistWithDetails[];

@@ -9,7 +9,7 @@ import { SaveButton } from "./save-button";
 import { CommentSection } from "./comment-section";
 import { TrackList } from "./track-list";
 import { PlaylistWithDetails, SpotifyTrack } from "@/lib/types";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import { apiClient, getErrorMessage } from "@/lib/utils/api-client";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import Link from "next/link";

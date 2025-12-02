@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth/client";
 import { UserProfileResponse } from "@/lib/types";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfilePlaylists } from "@/components/profile/profile-playlists";

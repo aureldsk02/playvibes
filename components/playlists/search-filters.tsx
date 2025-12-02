@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PlaylistFilters } from "@/lib/types";
 import { Search, X, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { FilterChip } from "./filter-chip";
-import { useDebounce } from "@/lib/performance-utils";
+import { useDebounce } from "@/lib/utils/performance";
 
 interface SearchFiltersProps {
   onFiltersChange: (filters: PlaylistFilters) => void;

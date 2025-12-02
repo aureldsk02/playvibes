@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { throttle } from '@/lib/performance-utils';
+import { throttle } from '@/lib/utils/performance';
 
 interface ProgressBarProps {
   position: number;

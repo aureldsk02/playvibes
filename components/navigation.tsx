@@ -6,7 +6,7 @@ import { useState } from "react";
 import { UserProfile } from "@/components/auth/user-profile";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { Button } from "@/components/ui/button";
-import { signInWithSpotify } from "@/lib/auth-client";
+import { signInWithSpotify } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 import { Menu, X, Music } from "lucide-react";
 

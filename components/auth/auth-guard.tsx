@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth/client";
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -70,7 +70,7 @@ export function AuthGuard({
 function SignInButton() {
   const handleSignIn = async () => {
     try {
-      const { signIn } = await import("@/lib/auth-client");
+      const { signIn } = await import("@/lib/auth/client");
       await signIn.social({
         provider: "spotify",
         callbackURL: "/",

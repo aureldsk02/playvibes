@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { CACHE_TIME } from '@/lib/swr-config';
+import { CACHE_TIME } from '@/lib/utils/swr';
 import type { PlaylistWithDetails } from '@/lib/types';
 
 interface PlaylistsResponse {

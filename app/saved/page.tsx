@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { usePlayback } from "@/components/playback/playback-provider";
 import { useSpotifyPlayer } from "@/hooks/use-spotify-player";
 import { useToast } from "@/components/ui/use-toast";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import { apiClient, getErrorMessage } from "@/lib/utils/api-client";
 import type { PlaylistWithDetails, PaginatedResponse } from "@/lib/types";
 import { Bookmark, AlertCircle, Music } from "lucide-react";
 import Link from "next/link";

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from '@/lib/auth-client';
+import { useSession } from '@/lib/auth/client';
 import { usePlayback } from '@/components/playback/playback-provider';
 
 export function useSpotifyPlayer() {

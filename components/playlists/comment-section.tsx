@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MessageCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import { apiClient, getErrorMessage } from "@/lib/utils/api-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommentForm } from "./comment-form";
 import { CommentItem } from "./comment-item";

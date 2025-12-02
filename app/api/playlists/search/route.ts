@@ -1,27 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sharedPlaylists, users, playlistLikes, playlistComments, savedPlaylists } from "@/lib/db/schema";
+import {
+  sharedPlaylists,
+  users,
+  playlistLikes,
+  playlistComments,
+  savedPlaylists,
+} from "@/lib/db/schema";
 import { eq, desc, asc, count, sql, ilike, and, or } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 
+import { apiRateLimit, getIdentifier } from "@/lib/rate-limit";
+import { searchParamsSchema, safeValidateData } from "@/lib/validation/schemas";
+import { sanitizeText, sanitizeArray } from "@/lib/sanitize";
+
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const identifier = getIdentifier(request);
+    const { success } = await apiRateLimit.limit(identifier);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "20");
+
+    // Validate search params
+    const validation = safeValidateData(searchParamsSchema, {
+      q: searchParams.get("q") || undefined,
+      genres: searchParams.get("genres") || undefined,
+      moods: searchParams.get("moods") || undefined,
+      activities: searchParams.get("activities") || undefined,
+      page: searchParams.get("page") || undefined,
+      limit: searchParams.get("limit") || undefined,
+      sortBy: searchParams.get("sortBy") || undefined,
+    });
+
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
+    }
+
+    const params = validation.data;
+    const page = params.page ? parseInt(params.page) : 1;
+    const limit = params.limit || 20;
     const offset = (page - 1) * limit;
-    const sortBy = searchParams.get("sortBy") || "newest";
+    const sortBy = params.sortBy || "newest";
 
     // Search and filter parameters
-    const searchQuery = searchParams.get("q");
-    const genresParam = searchParams.get("genres");
-    const moodsParam = searchParams.get("moods");
-    const activitiesParam = searchParams.get("activities");
+    const searchQuery = params.q ? sanitizeText(params.q) : undefined;
 
     // Parse comma-separated filter values
-    const genres = genresParam ? genresParam.split(",").map(g => g.trim()) : [];
-    const moods = moodsParam ? moodsParam.split(",").map(m => m.trim()) : [];
-    const activities = activitiesParam ? activitiesParam.split(",").map(a => a.trim()) : [];
+    const genres = params.genres
+      ? sanitizeArray(params.genres.split(",").map((g) => g.trim()))
+      : [];
+    const moods = params.moods ? sanitizeArray(params.moods.split(",").map((m) => m.trim())) : [];
+    const activities = params.activities
+      ? sanitizeArray(params.activities.split(",").map((a) => a.trim()))
+      : [];
 
     // Get current user session to check likes/saves
     const session = await auth.api.getSession({
@@ -43,23 +82,17 @@ export async function GET(request: NextRequest) {
 
     // Add genre filter
     if (genres.length > 0) {
-      whereConditions.push(
-        sql`${sharedPlaylists.genres} && ${genres}`
-      );
+      whereConditions.push(sql`${sharedPlaylists.genres} && ${genres}`);
     }
 
     // Add mood filter
     if (moods.length > 0) {
-      whereConditions.push(
-        sql`${sharedPlaylists.moods} && ${moods}`
-      );
+      whereConditions.push(sql`${sharedPlaylists.moods} && ${moods}`);
     }
 
     // Add activity filter
     if (activities.length > 0) {
-      whereConditions.push(
-        sql`${sharedPlaylists.activities} && ${activities}`
-      );
+      whereConditions.push(sql`${sharedPlaylists.activities} && ${activities}`);
     }
 
     // Determine order by clause based on sortBy parameter
@@ -108,7 +141,10 @@ export async function GET(request: NextRequest) {
 
     // Add savedPlaylists join only if sorting by most_saved
     if (sortBy === "most_saved") {
-      queryBuilder = queryBuilder.leftJoin(savedPlaylists, eq(sharedPlaylists.id, savedPlaylists.playlistId));
+      queryBuilder = queryBuilder.leftJoin(
+        savedPlaylists,
+        eq(sharedPlaylists.id, savedPlaylists.playlistId)
+      );
     }
 
     const searchQuery_db = queryBuilder
@@ -149,7 +185,7 @@ export async function GET(request: NextRequest) {
     // If user is authenticated, check which playlists they've liked/saved
     let playlistsWithUserActions = playlists;
     if (session?.user && playlists.length > 0) {
-      const playlistIds = playlists.map(p => p.id);
+      const playlistIds = playlists.map((p) => p.id);
 
       // Get user's likes for these playlists
       const userLikes = await db
@@ -167,10 +203,10 @@ export async function GET(request: NextRequest) {
           sql`${savedPlaylists.playlistId} = ANY(${playlistIds}) AND ${savedPlaylists.userId} = ${session.user.id}`
         );
 
-      const likedPlaylistIds = new Set(userLikes.map(like => like.playlistId));
-      const savedPlaylistIds = new Set(userSaves.map(save => save.playlistId));
+      const likedPlaylistIds = new Set(userLikes.map((like) => like.playlistId));
+      const savedPlaylistIds = new Set(userSaves.map((save) => save.playlistId));
 
-      playlistsWithUserActions = playlists.map(playlist => ({
+      playlistsWithUserActions = playlists.map((playlist) => ({
         ...playlist,
         isLiked: likedPlaylistIds.has(playlist.id),
         isSaved: savedPlaylistIds.has(playlist.id),
@@ -194,9 +230,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error searching playlists:", error);
-    return NextResponse.json(
-      { error: "Failed to search playlists" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to search playlists" }, { status: 500 });
   }
 }
